@@ -72,5 +72,10 @@
   width: 100%;
 }
 
+.main.public-main {
+  padding: 0;
+  margin: 0;
+}
+
 
 

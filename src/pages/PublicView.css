@@ -1,23 +1,21 @@
 .public-view {
-  padding: var(--spacing-3xl) 0;
-}
-
-.public-header {
-  margin-bottom: var(--spacing-4xl);
-  text-align: center;
-}
-
-.public-content {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-4xl);
+  background-color: var(--bg-primary);
 }
 
-.public-section {
-  width: 100%;
+.dashboard-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
 }
 
-.section-header {
-  margin-bottom: var(--spacing-2xl);
+.dashboard-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: var(--bg-primary);
 }
 

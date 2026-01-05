@@ -153,3 +153,5 @@ const RegionalTrendMap = ({ trends }: RegionalTrendMapProps) => {
 
 export default RegionalTrendMap
 
+
+

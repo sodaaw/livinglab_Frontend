@@ -103,3 +103,5 @@ const TrendIndicators = () => {
 
 export default TrendIndicators
 
+
+

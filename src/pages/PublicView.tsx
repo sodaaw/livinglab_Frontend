@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import TrendIndicators from '../components/public/TrendIndicators'
 import RegionalTrendMap from '../components/public/RegionalTrendMap'
 import SignalTrends from '../components/public/SignalTrends'
@@ -6,6 +7,29 @@ import ReportingGuide from '../components/public/ReportingGuide'
 import './PublicView.css'
 
 const PublicView = () => {
+  const sections = {
+    trends: useRef<HTMLElement>(null),
+    regional: useRef<HTMLElement>(null),
+    signals: useRef<HTMLElement>(null),
+    improvement: useRef<HTMLElement>(null),
+    reporting: useRef<HTMLElement>(null)
+  }
+
+  const scrollToSection = (sectionKey: keyof typeof sections) => {
+    const section = sections[sectionKey].current
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
+
+  const menuItems = [
+    { key: 'trends' as const, label: '전체 추세 지표' },
+    { key: 'regional' as const, label: '지역별 현황' },
+    { key: 'signals' as const, label: '지역별 신호 추세' },
+    { key: 'improvement' as const, label: '개선 현황' },
+    { key: 'reporting' as const, label: '민원 신고 안내' }
+  ]
+
   return (
     <div className="public-view">
       <div className="container">
@@ -16,12 +40,26 @@ const PublicView = () => {
           </p>
         </div>
 
+        <nav className="public-nav">
+          <div className="nav-menu">
+            {menuItems.map((item) => (
+              <button
+                key={item.key}
+                className="nav-menu-item"
+                onClick={() => scrollToSection(item.key)}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </nav>
+
         <div className="public-content">
-          <section className="public-section">
+          <section ref={sections.trends} id="trends" className="public-section">
             <TrendIndicators />
           </section>
 
-          <section className="public-section">
+          <section ref={sections.regional} id="regional" className="public-section">
             <div className="section-header">
               <h2 className="heading-2">지역별 현황</h2>
               <p className="body-small text-secondary mt-sm">
@@ -69,15 +107,15 @@ const PublicView = () => {
             />
           </section>
 
-          <section className="public-section">
+          <section ref={sections.signals} id="signals" className="public-section">
             <SignalTrends />
           </section>
 
-          <section className="public-section">
+          <section ref={sections.improvement} id="improvement" className="public-section">
             <ImprovementStatus />
           </section>
 
-          <section className="public-section">
+          <section ref={sections.reporting} id="reporting" className="public-section">
             <ReportingGuide />
           </section>
         </div>

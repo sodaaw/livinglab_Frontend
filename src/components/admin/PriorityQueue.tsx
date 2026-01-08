@@ -477,17 +477,35 @@ const PriorityQueue = () => {
               </div>
 
               <div className="queue-item-details">
-                {item.priorityReason && (
-                  <div className="detail-group priority-reason">
-                    <h4 className="detail-label">우선순위 결정 근거</h4>
-                    <p className="priority-summary">{item.priorityReason.summary}</p>
-                    <div className="priority-factors">
-                      {item.priorityReason.factors.map((factor, idx) => (
-                        <span key={idx} className="factor-tag">{factor}</span>
-                      ))}
+                <div className="priority-confounders-row">
+                  {item.priorityReason && (
+                    <div className="detail-group priority-reason">
+                      <h4 className="detail-label">우선순위 결정 근거</h4>
+                      <p className="priority-summary">{item.priorityReason.summary}</p>
+                      <div className="priority-factors">
+                        {item.priorityReason.factors.map((factor, idx) => (
+                          <span key={idx} className="factor-tag">{factor}</span>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+
+                  {item.confounders && Object.values(item.confounders).some(v => v) && (
+                    <div className="detail-group confounders">
+                      <h4 className="detail-label">교란요인</h4>
+                      <div className="confounder-tags">
+                        {item.confounders.feeding && <span className="confounder-tag warning">급이</span>}
+                        {item.confounders.seasonal && <span className="confounder-tag warning">계절성</span>}
+                        {item.confounders.commercial && <span className="confounder-tag warning">상권</span>}
+                        {item.confounders.weather && <span className="confounder-tag warning">기상</span>}
+                        {item.confounders.events && <span className="confounder-tag warning">이벤트</span>}
+                      </div>
+                      {item.expertValidation?.confoundersReviewed && (
+                        <small className="confounder-note">국립생태원 자문 반영됨</small>
+                      )}
+                    </div>
+                  )}
+                </div>
 
                 <div className="signals-container">
                   <div className="detail-group">
@@ -620,22 +638,6 @@ const PriorityQueue = () => {
                     </div>
                   )}
                 </div>
-
-                {item.confounders && Object.values(item.confounders).some(v => v) && (
-                  <div className="detail-group confounders">
-                    <h4 className="detail-label">교란요인</h4>
-                    <div className="confounder-tags">
-                      {item.confounders.feeding && <span className="confounder-tag warning">급이</span>}
-                      {item.confounders.seasonal && <span className="confounder-tag warning">계절성</span>}
-                      {item.confounders.commercial && <span className="confounder-tag warning">상권</span>}
-                      {item.confounders.weather && <span className="confounder-tag warning">기상</span>}
-                      {item.confounders.events && <span className="confounder-tag warning">이벤트</span>}
-                    </div>
-                    {item.expertValidation?.confoundersReviewed && (
-                      <small className="confounder-note">국립생태원 자문 반영됨</small>
-                    )}
-                  </div>
-                )}
 
                 {item.crossValidation && (
                   <div className="detail-group cross-validation">

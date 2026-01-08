@@ -144,9 +144,19 @@
   box-shadow: var(--shadow-sm);
 }
 
-/* 우선순위 결정 근거, 교란요인, 교차 검증은 전체 너비 */
-.detail-group.priority-reason,
-.detail-group.confounders,
+/* 우선순위 결정 근거와 교란요인을 가로로 배치 */
+.priority-confounders-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+}
+
+.priority-confounders-row .detail-group {
+  width: 100%;
+}
+
+/* 교차 검증은 전체 너비 */
 .detail-group.cross-validation {
   width: 100%;
 }
@@ -214,6 +224,7 @@
 .priority-reason {
   background-color: var(--chateau-green-50);
   padding: var(--spacing-sm);
+  padding-left: var(--spacing-md);
   border-radius: 4px;
   border-left: 3px solid var(--chateau-green-600);
 }
@@ -292,6 +303,7 @@
 .confounders {
   background-color: var(--gray-50);
   border-left: 3px solid var(--gray-400);
+  padding-left: var(--spacing-md);
 }
 
 .confounder-tags {
@@ -455,6 +467,10 @@
 
   .queue-item-header {
     flex-direction: column;
+  }
+
+  .priority-confounders-row {
+    grid-template-columns: 1fr;
   }
 
   .signals-container {

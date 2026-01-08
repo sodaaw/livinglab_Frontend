@@ -108,12 +108,44 @@
   background-color: var(--chateau-green-700);
 }
 
+.reporting-tips {
+  margin: var(--spacing-md) 0;
+  padding: var(--spacing-md);
+  background-color: var(--bg-secondary);
+  border-radius: 4px;
+  font-size: var(--font-size-sm);
+}
+
+.reporting-tips strong {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.reporting-tips ul {
+  margin-left: var(--spacing-lg);
+  margin-top: var(--spacing-xs);
+  color: var(--text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+.reporting-tips li {
+  margin-bottom: var(--spacing-xs);
+}
+
 .phone-number {
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
   color: var(--chateau-green-600);
   letter-spacing: -1px;
   padding: var(--spacing-md) 0;
+}
+
+.phone-hours {
+  font-size: var(--font-size-sm);
+  color: var(--text-tertiary);
+  margin-top: var(--spacing-xs);
 }
 
 .guide-note {

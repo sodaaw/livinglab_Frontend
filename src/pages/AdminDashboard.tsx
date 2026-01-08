@@ -1,6 +1,8 @@
 import PriorityQueue from '../components/admin/PriorityQueue'
 import ActionRecommendations from '../components/admin/ActionRecommendations'
 import BeforeAfterTracking from '../components/admin/BeforeAfterTracking'
+import TimePatternAnalysis from '../components/admin/TimePatternAnalysis'
+import BlindSpotDetection from '../components/admin/BlindSpotDetection'
 import './AdminDashboard.css'
 
 const AdminDashboard = () => {
@@ -17,6 +19,14 @@ const AdminDashboard = () => {
         <div className="dashboard-content">
           <section className="dashboard-section">
             <PriorityQueue />
+          </section>
+
+          <section className="dashboard-section">
+            <BlindSpotDetection />
+          </section>
+
+          <section className="dashboard-section">
+            <TimePatternAnalysis />
           </section>
 
           <section className="dashboard-section">

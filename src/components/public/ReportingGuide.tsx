@@ -50,23 +50,33 @@ const ReportingGuide = () => {
         </div>
 
         <div className="guide-actions">
-          <div className="action-card">
-            <h3 className="action-title">온라인 신고</h3>
-            <p className="action-description">
-              공식 민원 포털을 통해 24시간 신고가 가능합니다.
-            </p>
-            <button className="action-button primary">
-              민원 포털로 이동
-            </button>
-          </div>
+            <div className="action-card">
+              <h3 className="action-title">온라인 신고</h3>
+              <p className="action-description">
+                공식 민원 포털을 통해 24시간 신고가 가능합니다.
+              </p>
+              <div className="reporting-tips">
+                <strong>정확한 신고를 위한 팁:</strong>
+                <ul>
+                  <li>문제 발생 위치의 대략적인 주소 또는 건물명</li>
+                  <li>발견한 날짜와 시간</li>
+                  <li>문제의 구체적인 내용 (악취, 쓰레기, 불법투기 등)</li>
+                  <li>가능하면 사진 첨부 (선택사항)</li>
+                </ul>
+              </div>
+              <button className="action-button primary">
+                민원 포털로 이동
+              </button>
+            </div>
 
-          <div className="action-card">
-            <h3 className="action-title">전화 신고</h3>
-            <p className="action-description">
-              긴급한 상황이나 즉시 조치가 필요한 경우 전화로 신고하세요.
-            </p>
-            <div className="phone-number">120 다산콜센터</div>
-          </div>
+            <div className="action-card">
+              <h3 className="action-title">전화 신고</h3>
+              <p className="action-description">
+                긴급한 상황이나 즉시 조치가 필요한 경우 전화로 신고하세요.
+              </p>
+              <div className="phone-number">120 다산콜센터</div>
+              <div className="phone-hours">운영시간: 24시간</div>
+            </div>
         </div>
 
         <div className="guide-note">

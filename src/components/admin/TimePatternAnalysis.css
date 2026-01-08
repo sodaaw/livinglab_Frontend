@@ -1,0 +1,101 @@
+.time-pattern-analysis {
+  width: 100%;
+}
+
+.pattern-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3xl);
+}
+
+.pattern-item {
+  padding: var(--spacing-xl);
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+}
+
+.pattern-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+  flex-wrap: wrap;
+}
+
+.recommended-action {
+  flex-shrink: 0;
+}
+
+.action-badge {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--chateau-green-100);
+  color: var(--chateau-green-700);
+  border-radius: 4px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  border-left: 3px solid var(--chateau-green-600);
+}
+
+.pattern-charts {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--spacing-xl);
+}
+
+.chart-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.chart-title {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+}
+
+.peak-hours-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  background-color: var(--chateau-green-50);
+  border-radius: 4px;
+}
+
+.peak-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+}
+
+.peak-hours {
+  display: flex;
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+}
+
+.peak-hour-badge {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: var(--chateau-green-600);
+  color: var(--white);
+  border-radius: 4px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+@media (max-width: 1024px) {
+  .pattern-charts {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .pattern-header {
+    flex-direction: column;
+  }
+}
+

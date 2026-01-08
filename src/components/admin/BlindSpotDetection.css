@@ -1,0 +1,157 @@
+.blindspot-detection {
+  width: 100%;
+}
+
+.blindspot-map-section {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.blindspot-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-md);
+}
+
+.blindspot-item {
+  padding: var(--spacing-md);
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  border-left: 3px solid var(--chateau-green-500);
+}
+
+.blindspot-item .heading-4 {
+  font-size: var(--font-size-base);
+  margin-bottom: var(--spacing-xs);
+}
+
+.blindspot-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.blindspot-reason {
+  margin-top: var(--spacing-xs);
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  line-height: var(--line-height-normal);
+}
+
+.risk-badge-container {
+  flex-shrink: 0;
+}
+
+.risk-badge {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: 4px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.blindspot-signals {
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-sm);
+  background-color: var(--bg-secondary);
+  border-radius: 4px;
+}
+
+.signals-title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+  letter-spacing: -0.5px;
+}
+
+.signals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--spacing-sm);
+}
+
+.signal-card {
+  padding: var(--spacing-sm);
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.signal-card.pigeon-signal {
+  background-color: var(--chateau-green-50);
+  border-color: var(--chateau-green-200);
+}
+
+.signal-name {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  font-weight: var(--font-weight-medium);
+}
+
+.signal-value-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.signal-value {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.5px;
+}
+
+.signal-value.pigeon-detected {
+  color: var(--chateau-green-600);
+}
+
+.signal-value.pigeon-not-detected {
+  color: var(--gray-400);
+}
+
+.signal-status {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}
+
+.blindspot-action {
+  padding: var(--spacing-sm);
+  background-color: var(--chateau-green-50);
+  border-radius: 4px;
+  border-left: 3px solid var(--chateau-green-600);
+}
+
+.action-title {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.action-description {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  line-height: var(--line-height-normal);
+}
+
+@media (max-width: 1024px) {
+  .blindspot-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .blindspot-header {
+    flex-direction: column;
+  }
+
+  .signals-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

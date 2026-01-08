@@ -4,18 +4,18 @@
 
 .recommendations-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: var(--spacing-xl);
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: var(--spacing-md);
 }
 
 .recommendation-card {
-  padding: var(--spacing-xl);
+  padding: var(--spacing-md);
   background-color: var(--bg-primary);
   border: 1px solid var(--border-subtle);
-  border-radius: 8px;
+  border-radius: 6px;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
   transition: all var(--transition-base);
 }
 
@@ -62,15 +62,15 @@
 }
 
 .recommendation-location {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-base);
   font-weight: var(--font-weight-semibold);
   color: var(--text-primary);
   letter-spacing: -0.5px;
 }
 
 .recommendation-description {
-  font-size: var(--font-size-base);
-  line-height: var(--line-height-relaxed);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
   color: var(--text-secondary);
   flex: 1;
 }
@@ -78,8 +78,8 @@
 .recommendation-footer {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
-  padding-top: var(--spacing-md);
+  gap: var(--spacing-xs);
+  padding-top: var(--spacing-sm);
   border-top: 1px solid var(--border-subtle);
 }
 
@@ -108,9 +108,146 @@
   color: var(--text-primary);
 }
 
+.cost-effectiveness-section {
+  margin-top: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  background-color: var(--chateau-green-50);
+  border-radius: 4px;
+  border-left: 3px solid var(--chateau-green-600);
+}
+
+.ce-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.ce-title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+}
+
+.roi-badge {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: var(--chateau-green-600);
+  color: var(--white);
+  border-radius: 4px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+}
+
+.ce-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.ce-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--font-size-sm);
+}
+
+.ce-label {
+  color: var(--text-secondary);
+}
+
+.ce-value {
+  font-weight: var(--font-weight-semibold);
+  color: var(--chateau-green-600);
+}
+
+.time-pattern-section {
+  margin-top: var(--spacing-sm);
+  padding: var(--spacing-xs);
+  background-color: var(--bg-secondary);
+  border-radius: 4px;
+}
+
+.pattern-label {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.pattern-info {
+  display: flex;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.pattern-hours,
+.pattern-days {
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.related-signals {
+  margin-top: var(--spacing-sm);
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.signals-label {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.signals-tags {
+  display: flex;
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+}
+
+.signal-tag {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: 4px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+.signal-tag.human {
+  background-color: var(--chateau-green-100);
+  color: var(--chateau-green-700);
+}
+
+.signal-tag.geo {
+  background-color: var(--chateau-green-200);
+  color: var(--chateau-green-800);
+}
+
+.signal-tag.population {
+  background-color: var(--chateau-green-300);
+  color: var(--chateau-green-900);
+}
+
+.signal-tag.pigeon {
+  background-color: var(--gray-200);
+  color: var(--gray-700);
+}
+
 @media (max-width: 768px) {
   .recommendations-grid {
     grid-template-columns: 1fr;
+  }
+
+  .ce-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pattern-info {
+    flex-direction: column;
+    gap: var(--spacing-xs);
   }
 }
 

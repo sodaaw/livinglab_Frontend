@@ -1,5 +1,6 @@
 import TrendIndicators from '../components/public/TrendIndicators'
 import RegionalTrendMap from '../components/public/RegionalTrendMap'
+import SignalTrends from '../components/public/SignalTrends'
 import ImprovementStatus from '../components/public/ImprovementStatus'
 import ReportingGuide from '../components/public/ReportingGuide'
 import './PublicView.css'
@@ -66,6 +67,10 @@ const PublicView = () => {
                 }
               ]}
             />
+          </section>
+
+          <section className="public-section">
+            <SignalTrends />
           </section>
 
           <section className="public-section">

@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import LocationMap from './LocationMap'
 import IndexCalculationModal from './IndexCalculationModal'
 import './PriorityQueue.css'
 
@@ -344,10 +343,9 @@ const mockData: InspectionItem[] = [
 
 const PriorityQueue = () => {
   const [items] = useState<InspectionItem[]>(mockData)
-  const [selectedLocationId, setSelectedLocationId] = useState<string | undefined>()
+  const [selectedLocationId, setSelectedLocationId] = useState<string | undefined>(items[0]?.id)
   const [showIndexModal, setShowIndexModal] = useState(false)
-  const [selectedItem, setSelectedItem] = useState<InspectionItem | null>(null)
-  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
+  const [selectedItemForModal, setSelectedItemForModal] = useState<InspectionItem | null>(null)
 
   const getPriorityLabel = (priority: string) => {
     switch (priority) {
@@ -388,29 +386,12 @@ const PriorityQueue = () => {
     }
   }
 
-  const toggleExpand = (itemId: string) => {
-    const newExpanded = new Set(expandedItems)
-    if (newExpanded.has(itemId)) {
-      newExpanded.delete(itemId)
-    } else {
-      newExpanded.add(itemId)
-    }
-    setExpandedItems(newExpanded)
-  }
-
   const handleIndexClick = (item: InspectionItem) => {
-    setSelectedItem(item)
+    setSelectedItemForModal(item)
     setShowIndexModal(true)
   }
 
-  const mapLocations = items.map((item) => ({
-    id: item.id,
-    location: item.location,
-    lat: item.lat,
-    lng: item.lng,
-    comfortIndex: item.comfortIndex,
-    priority: item.priority
-  }))
+  const selectedItem = items.find(item => item.id === selectedLocationId)
 
   return (
     <div className="priority-queue">
@@ -421,319 +402,312 @@ const PriorityQueue = () => {
         </p>
       </div>
 
-      <div className="queue-map-section">
-        <LocationMap
-          locations={mapLocations}
-          selectedLocationId={selectedLocationId}
-          onLocationClick={(location) => {
-            setSelectedLocationId(location.id)
-            const element = document.getElementById(`queue-item-${location.id}`)
-            element?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-          }}
-        />
+      <div className="queue-visualization">
+        <div className="queue-cards">
+          {items.map((item, index) => {
+            const locationParts = item.location.split(' ')
+            const district = locationParts.length > 2 ? locationParts[2] : locationParts[1] || item.location
+            return (
+              <div
+                key={item.id}
+                className={`queue-card ${selectedLocationId === item.id ? 'active' : ''}`}
+                onClick={() => setSelectedLocationId(item.id)}
+              >
+                <div className="queue-card-rank">{index + 1}</div>
+                <div className="queue-card-content">
+                  <div className="queue-card-location">{district}</div>
+                  <div className="queue-card-info">
+                    <span className={`priority-badge priority-${item.priority}`}>
+                      {getPriorityLabel(item.priority)}
+                    </span>
+                    <span className="queue-card-index">지수: {item.comfortIndex}</span>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
       </div>
 
-      <div className="queue-list">
-        {items.map((item, index) => (
-          <div
-            key={item.id}
-            id={`queue-item-${item.id}`}
-            className={`queue-item ${selectedLocationId === item.id ? 'selected' : ''}`}
-            onClick={() => setSelectedLocationId(item.id)}
-          >
-            <div className="queue-item-rank">
-              <span className="rank-number">{index + 1}</span>
+      {selectedItem && (
+        <div className="queue-detail-view">
+          <div className="queue-detail-header">
+            <div className="queue-detail-title">
+              <span className="queue-detail-rank">
+                {items.findIndex(item => item.id === selectedLocationId) + 1}
+              </span>
+              <h3 className="heading-4">{selectedItem.location}</h3>
             </div>
-            <div className="queue-item-content">
-              <div className="queue-item-header">
-                <h3 className="heading-4">{item.location}</h3>
-                <div className="queue-item-badges">
-                  <span
-                    className={`priority-badge priority-${item.priority}`}
-                  >
-                    {getPriorityLabel(item.priority)}
-                  </span>
-                  <span 
-                    className="index-badge clickable"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleIndexClick(item)
-                    }}
-                    title="지수 계산 근거 보기"
-                  >
-                    편의성 지수: {item.comfortIndex}
-                  </span>
-                  {item.expertValidation?.verified && (
-                    <span className="expert-badge" title={item.expertValidation.source}>
-                      전문가 검증
-                    </span>
-                  )}
-                  {item.pigeonSignals?.detected && (
-                    <span className="pigeon-badge" title="비둘기 신호 감지됨">
-                      생태 신호
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <div className="queue-item-details">
-                <div className="priority-confounders-row">
-                  {item.priorityReason && (
-                    <div className="detail-group priority-reason">
-                      <h4 className="detail-label">우선순위 결정 근거</h4>
-                      <p className="priority-summary">{item.priorityReason.summary}</p>
-                      <div className="priority-factors">
-                        {item.priorityReason.factors.map((factor, idx) => (
-                          <span key={idx} className="factor-tag">{factor}</span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {item.confounders && Object.values(item.confounders).some(v => v) && (
-                    <div className="detail-group confounders">
-                      <h4 className="detail-label">교란요인</h4>
-                      <div className="confounder-tags">
-                        {item.confounders.feeding && <span className="confounder-tag warning">급이</span>}
-                        {item.confounders.seasonal && <span className="confounder-tag warning">계절성</span>}
-                        {item.confounders.commercial && <span className="confounder-tag warning">상권</span>}
-                        {item.confounders.weather && <span className="confounder-tag warning">기상</span>}
-                        {item.confounders.events && <span className="confounder-tag warning">이벤트</span>}
-                      </div>
-                      {item.expertValidation?.confoundersReviewed && (
-                        <small className="confounder-note">국립생태원 자문 반영됨</small>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                <div className="signals-container">
-                  <div className="detail-group">
-                    <h4 className="detail-label">
-                      인간 신호
-                      {item.dataSource?.human && (
-                        <span className="data-source-badge" title={`출처: ${item.dataSource.human.source}, 신뢰도: ${item.dataSource.human.reliability}`}>
-                          {item.dataSource.human.reliability === 'high' ? '✓' : '○'}
-                        </span>
-                      )}
-                    </h4>
-                    <div className="detail-values">
-                      <span className="detail-value">
-                        민원: <strong>{item.humanSignals.complaints}건</strong>
-                      </span>
-                      <span className="detail-value">
-                        추세:{' '}
-                        <strong
-                          style={{ color: getTrendColor(item.humanSignals.trend) }}
-                        >
-                          {getTrendLabel(item.humanSignals.trend)}
-                        </strong>
-                      </span>
-                      <span className="detail-value">
-                        재발: <strong>{item.humanSignals.recurrence}회</strong>
-                      </span>
-                      {item.humanSignals.timePattern && (
-                        <span className="detail-value">
-                          피크 시간: <strong>{item.humanSignals.timePattern.peakHours.join(', ')}시</strong>
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="detail-group">
-                    <h4 className="detail-label">
-                      지리 신호
-                      {item.dataSource?.geo && (
-                        <span className="data-source-badge" title={`출처: ${item.dataSource.geo.source}, 신뢰도: ${item.dataSource.geo.reliability}`}>
-                          {item.dataSource.geo.reliability === 'high' ? '✓' : '○'}
-                        </span>
-                      )}
-                    </h4>
-                    <div className="detail-values">
-                      <span className="detail-value">
-                        골목 구조: {item.geoSignals.alleyStructure}
-                      </span>
-                      <span className="detail-value">
-                        환기: {item.geoSignals.ventilation}
-                      </span>
-                      <span className="detail-value">
-                        접근성: {item.geoSignals.accessibility}
-                      </span>
-                      <span className="detail-value">
-                        취약도 점수: <strong>{item.geoSignals.vulnerabilityScore}/10</strong>
-                      </span>
-                    </div>
-                  </div>
-
-                  {item.populationSignals && (
-                    <div className="detail-group">
-                      <h4 className="detail-label">
-                        생활인구 신호
-                        {item.dataSource?.population && (
-                          <span className="data-source-badge" title={`출처: ${item.dataSource.population.source}, 신뢰도: ${item.dataSource.population.reliability}`}>
-                            {item.dataSource.population.reliability === 'high' ? '✓' : '○'}
-                          </span>
-                        )}
-                      </h4>
-                      <div className="detail-values">
-                        <span className="detail-value">
-                          주간: <strong>{item.populationSignals.daytime.toLocaleString()}명</strong>
-                        </span>
-                        <span className="detail-value">
-                          야간: <strong>{item.populationSignals.nighttime.toLocaleString()}명</strong>
-                        </span>
-                        <span className="detail-value">
-                          변화율: <strong style={{ color: item.populationSignals.changeRate > 0 ? 'var(--chateau-green-600)' : 'var(--gray-500)' }}>
-                            {item.populationSignals.changeRate > 0 ? '+' : ''}{item.populationSignals.changeRate.toFixed(1)}%
-                          </strong>
-                        </span>
-                        <span className="detail-value">
-                          추세:{' '}
-                          <strong
-                            style={{ color: getTrendColor(item.populationSignals.trend) }}
-                          >
-                            {getTrendLabel(item.populationSignals.trend)}
-                          </strong>
-                        </span>
-                      </div>
-                    </div>
-                  )}
-
-                  {item.pigeonSignals && (
-                    <div className="detail-group pigeon-signals">
-                      <h4 className="detail-label">
-                        비둘기 신호 (해석 레이어)
-                        {item.dataSource?.pigeon && (
-                          <span className="data-source-badge" title={`출처: ${item.dataSource.pigeon.source}, 신뢰도: ${item.dataSource.pigeon.reliability}`}>
-                            {item.dataSource.pigeon.reliability === 'high' ? '✓' : '○'}
-                          </span>
-                        )}
-                      </h4>
-                      {item.pigeonSignals.detected ? (
-                        <div className="pigeon-detected">
-                          <div className="pigeon-status">
-                            <span className="pigeon-intensity">
-                              강도: <strong>{item.pigeonSignals.intensity === 'high' ? '높음' : item.pigeonSignals.intensity === 'medium' ? '보통' : '낮음'}</strong>
-                            </span>
-                            {item.pigeonSignals.activityPattern && (
-                              <span className="pigeon-frequency">
-                                활동 빈도: <strong>{item.pigeonSignals.activityPattern.frequency}회/일</strong>
-                              </span>
-                            )}
-                          </div>
-                          {item.pigeonSignals.interpretation && (
-                            <p className="pigeon-interpretation">{item.pigeonSignals.interpretation}</p>
-                          )}
-                          <div className="pigeon-note">
-                            <small>비둘기 신호는 Core 지표의 보조 검증 레이어로 활용됩니다.</small>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="pigeon-not-detected">
-                          <p className="pigeon-interpretation">
-                            {item.pigeonSignals.interpretation || '비둘기 신호 없음. Core 지표만으로 우선순위 결정됨.'}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                {item.crossValidation && (
-                  <div className="detail-group cross-validation">
-                    <h4 className="detail-label">신호 교차 검증</h4>
-                    <div className="validation-scores">
-                      <div className="validation-score">
-                        <span className="score-label">Human-Geo 일치도</span>
-                        <div className="score-bar">
-                          <div 
-                            className="score-fill" 
-                            style={{ width: `${item.crossValidation.humanGeoMatch}%` }}
-                          />
-                          <span className="score-value">{item.crossValidation.humanGeoMatch}%</span>
-                        </div>
-                      </div>
-                      <div className="validation-score">
-                        <span className="score-label">Human-Population 일치도</span>
-                        <div className="score-bar">
-                          <div 
-                            className="score-fill" 
-                            style={{ width: `${item.crossValidation.humanPopulationMatch}%` }}
-                          />
-                          <span className="score-value">{item.crossValidation.humanPopulationMatch}%</span>
-                        </div>
-                      </div>
-                      <div className="validation-score">
-                        <span className="score-label">전체 신호 일치도</span>
-                        <div className="score-bar">
-                          <div 
-                            className="score-fill" 
-                            style={{ width: `${item.crossValidation.allSignalsMatch}%` }}
-                          />
-                          <span className="score-value">{item.crossValidation.allSignalsMatch}%</span>
-                        </div>
-                      </div>
-                    </div>
-                    {item.crossValidation.blindSpotRisk === 'high' && (
-                      <div className="blindspot-warning">
-                        <strong>사각지대 위험 높음</strong> - 추가 조사 권장
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {item.lastInspection && (
-                  <div className="detail-group">
-                    <span className="detail-value text-tertiary">
-                      최종 검사: {item.lastInspection}
-                    </span>
-                  </div>
-                )}
-
-                <button 
-                  className="expand-button"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    toggleExpand(item.id)
-                  }}
-                >
-                  {expandedItems.has(item.id) ? '간략히 보기' : '상세 정보 보기'}
-                </button>
-
-                {expandedItems.has(item.id) && (
-                  <div className="expanded-details">
-                    {item.humanSignals.timePattern && (
-                      <div className="time-pattern-section">
-                        <h5 className="pattern-title">시간대별 패턴</h5>
-                        <div className="time-pattern-chart">
-                          {Array.from({ length: 24 }, (_, i) => (
-                            <div key={i} className="hour-bar">
-                              <div 
-                                className={`hour-fill ${item.humanSignals.timePattern!.peakHours.includes(i) ? 'peak' : ''}`}
-                                style={{ 
-                                  height: item.humanSignals.timePattern!.peakHours.includes(i) ? '100%' : '30%' 
-                                }}
-                              />
-                              <span className="hour-label">{i}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
+            <div className="queue-item-badges">
+              <span
+                className={`priority-badge priority-${selectedItem.priority}`}
+              >
+                {getPriorityLabel(selectedItem.priority)}
+              </span>
+              <span 
+                className="index-badge clickable"
+                onClick={() => handleIndexClick(selectedItem)}
+                title="지수 계산 근거 보기"
+              >
+                편의성 지수: {selectedItem.comfortIndex}
+              </span>
+              {selectedItem.expertValidation?.verified && (
+                <span className="expert-badge" title={selectedItem.expertValidation.source}>
+                  전문가 검증
+                </span>
+              )}
+              {selectedItem.pigeonSignals?.detected && (
+                <span className="pigeon-badge" title="비둘기 신호 감지됨">
+                  생태 신호
+                </span>
+              )}
             </div>
           </div>
-        ))}
-      </div>
 
-      {showIndexModal && selectedItem && (
+          <div className="queue-item-details">
+            <div className="priority-confounders-row">
+              {selectedItem.priorityReason && (
+                <div className="detail-group priority-reason">
+                  <h4 className="detail-label">우선순위 결정 근거</h4>
+                  <p className="priority-summary">{selectedItem.priorityReason.summary}</p>
+                  <div className="priority-factors">
+                    {selectedItem.priorityReason.factors.map((factor, idx) => (
+                      <span key={idx} className="factor-tag">{factor}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {selectedItem.confounders && Object.values(selectedItem.confounders).some(v => v) && (
+                <div className="detail-group confounders">
+                  <h4 className="detail-label">교란요인</h4>
+                  <div className="confounder-tags">
+                    {selectedItem.confounders.feeding && <span className="confounder-tag warning">급이</span>}
+                    {selectedItem.confounders.seasonal && <span className="confounder-tag warning">계절성</span>}
+                    {selectedItem.confounders.commercial && <span className="confounder-tag warning">상권</span>}
+                    {selectedItem.confounders.weather && <span className="confounder-tag warning">기상</span>}
+                    {selectedItem.confounders.events && <span className="confounder-tag warning">이벤트</span>}
+                  </div>
+                  {selectedItem.expertValidation?.confoundersReviewed && (
+                    <small className="confounder-note">국립생태원 자문 반영됨</small>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="signals-container">
+              <div className="detail-group">
+                <h4 className="detail-label">
+                  인간 신호
+                  {selectedItem.dataSource?.human && (
+                    <span className="data-source-badge" title={`출처: ${selectedItem.dataSource.human.source}, 신뢰도: ${selectedItem.dataSource.human.reliability}`}>
+                      {selectedItem.dataSource.human.reliability === 'high' ? '✓' : '○'}
+                    </span>
+                  )}
+                </h4>
+                <div className="detail-values">
+                  <span className="detail-value">
+                    민원: <strong>{selectedItem.humanSignals.complaints}건</strong>
+                  </span>
+                  <span className="detail-value">
+                    추세:{' '}
+                    <strong
+                      style={{ color: getTrendColor(selectedItem.humanSignals.trend) }}
+                    >
+                      {getTrendLabel(selectedItem.humanSignals.trend)}
+                    </strong>
+                  </span>
+                  <span className="detail-value">
+                    재발: <strong>{selectedItem.humanSignals.recurrence}회</strong>
+                  </span>
+                  {selectedItem.humanSignals.timePattern && (
+                    <span className="detail-value">
+                      피크 시간: <strong>{selectedItem.humanSignals.timePattern.peakHours.join(', ')}시</strong>
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="detail-group">
+                <h4 className="detail-label">
+                  지리 신호
+                  {selectedItem.dataSource?.geo && (
+                    <span className="data-source-badge" title={`출처: ${selectedItem.dataSource.geo.source}, 신뢰도: ${selectedItem.dataSource.geo.reliability}`}>
+                      {selectedItem.dataSource.geo.reliability === 'high' ? '✓' : '○'}
+                    </span>
+                  )}
+                </h4>
+                <div className="detail-values">
+                  <span className="detail-value">
+                    골목 구조: {selectedItem.geoSignals.alleyStructure}
+                  </span>
+                  <span className="detail-value">
+                    환기: {selectedItem.geoSignals.ventilation}
+                  </span>
+                  <span className="detail-value">
+                    접근성: {selectedItem.geoSignals.accessibility}
+                  </span>
+                  <span className="detail-value">
+                    취약도 점수: <strong>{selectedItem.geoSignals.vulnerabilityScore}/10</strong>
+                  </span>
+                </div>
+              </div>
+
+              {selectedItem.populationSignals && (
+                <div className="detail-group">
+                  <h4 className="detail-label">
+                    생활인구 신호
+                    {selectedItem.dataSource?.population && (
+                      <span className="data-source-badge" title={`출처: ${selectedItem.dataSource.population.source}, 신뢰도: ${selectedItem.dataSource.population.reliability}`}>
+                        {selectedItem.dataSource.population.reliability === 'high' ? '✓' : '○'}
+                      </span>
+                    )}
+                  </h4>
+                  <div className="detail-values">
+                    <span className="detail-value">
+                      주간: <strong>{selectedItem.populationSignals.daytime.toLocaleString()}명</strong>
+                    </span>
+                    <span className="detail-value">
+                      야간: <strong>{selectedItem.populationSignals.nighttime.toLocaleString()}명</strong>
+                    </span>
+                    <span className="detail-value">
+                      변화율: <strong style={{ color: selectedItem.populationSignals.changeRate > 0 ? 'var(--chateau-green-600)' : 'var(--gray-500)' }}>
+                        {selectedItem.populationSignals.changeRate > 0 ? '+' : ''}{selectedItem.populationSignals.changeRate.toFixed(1)}%
+                      </strong>
+                    </span>
+                    <span className="detail-value">
+                      추세:{' '}
+                      <strong
+                        style={{ color: getTrendColor(selectedItem.populationSignals.trend) }}
+                      >
+                        {getTrendLabel(selectedItem.populationSignals.trend)}
+                      </strong>
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {selectedItem.pigeonSignals && (
+                <div className="detail-group pigeon-signals">
+                  <h4 className="detail-label">
+                    비둘기 신호 (해석 레이어)
+                    {selectedItem.dataSource?.pigeon && (
+                      <span className="data-source-badge" title={`출처: ${selectedItem.dataSource.pigeon.source}, 신뢰도: ${selectedItem.dataSource.pigeon.reliability}`}>
+                        {selectedItem.dataSource.pigeon.reliability === 'high' ? '✓' : '○'}
+                      </span>
+                    )}
+                  </h4>
+                  {selectedItem.pigeonSignals.detected ? (
+                    <div className="pigeon-detected">
+                      <div className="pigeon-status">
+                        <span className="pigeon-intensity">
+                          강도: <strong>{selectedItem.pigeonSignals.intensity === 'high' ? '높음' : selectedItem.pigeonSignals.intensity === 'medium' ? '보통' : '낮음'}</strong>
+                        </span>
+                        {selectedItem.pigeonSignals.activityPattern && (
+                          <span className="pigeon-frequency">
+                            활동 빈도: <strong>{selectedItem.pigeonSignals.activityPattern.frequency}회/일</strong>
+                          </span>
+                        )}
+                      </div>
+                      {selectedItem.pigeonSignals.interpretation && (
+                        <p className="pigeon-interpretation">{selectedItem.pigeonSignals.interpretation}</p>
+                      )}
+                      <div className="pigeon-note">
+                        <small>비둘기 신호는 Core 지표의 보조 검증 레이어로 활용됩니다.</small>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="pigeon-not-detected">
+                      <p className="pigeon-interpretation">
+                        {selectedItem.pigeonSignals.interpretation || '비둘기 신호 없음. Core 지표만으로 우선순위 결정됨.'}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {selectedItem.crossValidation && (
+              <div className="detail-group cross-validation">
+                <h4 className="detail-label">신호 교차 검증</h4>
+                <div className="validation-scores">
+                  <div className="validation-score">
+                    <span className="score-label">Human-Geo 일치도</span>
+                    <div className="score-bar">
+                      <div 
+                        className="score-fill" 
+                        style={{ width: `${selectedItem.crossValidation.humanGeoMatch}%` }}
+                      />
+                      <span className="score-value">{selectedItem.crossValidation.humanGeoMatch}%</span>
+                    </div>
+                  </div>
+                  <div className="validation-score">
+                    <span className="score-label">Human-Population 일치도</span>
+                    <div className="score-bar">
+                      <div 
+                        className="score-fill" 
+                        style={{ width: `${selectedItem.crossValidation.humanPopulationMatch}%` }}
+                      />
+                      <span className="score-value">{selectedItem.crossValidation.humanPopulationMatch}%</span>
+                    </div>
+                  </div>
+                  <div className="validation-score">
+                    <span className="score-label">전체 신호 일치도</span>
+                    <div className="score-bar">
+                      <div 
+                        className="score-fill" 
+                        style={{ width: `${selectedItem.crossValidation.allSignalsMatch}%` }}
+                      />
+                      <span className="score-value">{selectedItem.crossValidation.allSignalsMatch}%</span>
+                    </div>
+                  </div>
+                </div>
+                {selectedItem.crossValidation.blindSpotRisk === 'high' && (
+                  <div className="blindspot-warning">
+                    <strong>사각지대 위험 높음</strong> - 추가 조사 권장
+                  </div>
+                )}
+              </div>
+            )}
+
+            {selectedItem.lastInspection && (
+              <div className="detail-group">
+                <span className="detail-value text-tertiary">
+                  최종 검사: {selectedItem.lastInspection}
+                </span>
+              </div>
+            )}
+
+            {selectedItem.humanSignals.timePattern && (
+              <div className="expanded-details">
+                <div className="time-pattern-section">
+                  <h5 className="pattern-title">시간대별 패턴</h5>
+                  <div className="time-pattern-chart">
+                    {Array.from({ length: 24 }, (_, i) => (
+                      <div key={i} className="hour-bar">
+                        <div 
+                          className={`hour-fill ${selectedItem.humanSignals.timePattern!.peakHours.includes(i) ? 'peak' : ''}`}
+                          style={{ 
+                            height: selectedItem.humanSignals.timePattern!.peakHours.includes(i) ? '100%' : '30%' 
+                          }}
+                        />
+                        <span className="hour-label">{i}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {showIndexModal && selectedItemForModal && (
         <IndexCalculationModal
-          item={selectedItem}
+          item={selectedItemForModal}
           onClose={() => {
             setShowIndexModal(false)
-            setSelectedItem(null)
+            setSelectedItemForModal(null)
           }}
         />
       )}

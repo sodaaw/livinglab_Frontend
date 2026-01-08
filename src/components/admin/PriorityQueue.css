@@ -109,15 +109,46 @@
 .queue-item-details {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-md);
   padding-top: var(--spacing-sm);
   border-top: 1px solid var(--border-subtle);
+}
+
+/* 신호 섹션들을 가로로 배치하는 컨테이너 */
+.signals-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
 }
 
 .detail-group {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
+}
+
+/* 신호 섹션들에 대한 스타일 */
+.signals-container .detail-group {
+  flex: 1;
+  min-width: 0;
+  padding: var(--spacing-md);
+  background-color: var(--bg-secondary);
+  border-radius: 6px;
+  border: 1px solid var(--border-subtle);
+  transition: all var(--transition-base);
+}
+
+.signals-container .detail-group:hover {
+  border-color: var(--chateau-green-300);
+  box-shadow: var(--shadow-sm);
+}
+
+/* 우선순위 결정 근거, 교란요인, 교차 검증은 전체 너비 */
+.detail-group.priority-reason,
+.detail-group.confounders,
+.detail-group.cross-validation {
+  width: 100%;
 }
 
 .detail-label {
@@ -130,13 +161,14 @@
 
 .detail-values {
   display: flex;
-  gap: var(--spacing-lg);
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: var(--spacing-xs);
 }
 
 .detail-value {
   font-size: var(--font-size-sm);
   color: var(--text-primary);
+  line-height: 1.5;
 }
 
 .detail-value strong {
@@ -209,8 +241,12 @@
 }
 
 .pigeon-signals {
-  background-color: var(--chateau-green-50);
+  background-color: var(--bg-secondary);
   border-left: 3px solid var(--chateau-green-400);
+}
+
+.signals-container .pigeon-signals {
+  background-color: var(--chateau-green-50);
 }
 
 .pigeon-detected,
@@ -419,6 +455,10 @@
 
   .queue-item-header {
     flex-direction: column;
+  }
+
+  .signals-container {
+    grid-template-columns: 1fr;
   }
 
   .detail-values {

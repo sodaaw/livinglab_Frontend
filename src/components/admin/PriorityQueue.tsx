@@ -489,135 +489,137 @@ const PriorityQueue = () => {
                   </div>
                 )}
 
-                <div className="detail-group">
-                  <h4 className="detail-label">
-                    인간 신호
-                    {item.dataSource?.human && (
-                      <span className="data-source-badge" title={`출처: ${item.dataSource.human.source}, 신뢰도: ${item.dataSource.human.reliability}`}>
-                        {item.dataSource.human.reliability === 'high' ? '✓' : '○'}
-                      </span>
-                    )}
-                  </h4>
-                  <div className="detail-values">
-                    <span className="detail-value">
-                      민원: <strong>{item.humanSignals.complaints}건</strong>
-                    </span>
-                    <span className="detail-value">
-                      추세:{' '}
-                      <strong
-                        style={{ color: getTrendColor(item.humanSignals.trend) }}
-                      >
-                        {getTrendLabel(item.humanSignals.trend)}
-                      </strong>
-                    </span>
-                    <span className="detail-value">
-                      재발: <strong>{item.humanSignals.recurrence}회</strong>
-                    </span>
-                    {item.humanSignals.timePattern && (
-                      <span className="detail-value">
-                        피크 시간: <strong>{item.humanSignals.timePattern.peakHours.join(', ')}시</strong>
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="detail-group">
-                  <h4 className="detail-label">
-                    지리 신호
-                    {item.dataSource?.geo && (
-                      <span className="data-source-badge" title={`출처: ${item.dataSource.geo.source}, 신뢰도: ${item.dataSource.geo.reliability}`}>
-                        {item.dataSource.geo.reliability === 'high' ? '✓' : '○'}
-                      </span>
-                    )}
-                  </h4>
-                  <div className="detail-values">
-                    <span className="detail-value">
-                      골목 구조: {item.geoSignals.alleyStructure}
-                    </span>
-                    <span className="detail-value">
-                      환기: {item.geoSignals.ventilation}
-                    </span>
-                    <span className="detail-value">
-                      접근성: {item.geoSignals.accessibility}
-                    </span>
-                    <span className="detail-value">
-                      취약도 점수: <strong>{item.geoSignals.vulnerabilityScore}/10</strong>
-                    </span>
-                  </div>
-                </div>
-
-                {item.populationSignals && (
+                <div className="signals-container">
                   <div className="detail-group">
                     <h4 className="detail-label">
-                      생활인구 신호
-                      {item.dataSource?.population && (
-                        <span className="data-source-badge" title={`출처: ${item.dataSource.population.source}, 신뢰도: ${item.dataSource.population.reliability}`}>
-                          {item.dataSource.population.reliability === 'high' ? '✓' : '○'}
+                      인간 신호
+                      {item.dataSource?.human && (
+                        <span className="data-source-badge" title={`출처: ${item.dataSource.human.source}, 신뢰도: ${item.dataSource.human.reliability}`}>
+                          {item.dataSource.human.reliability === 'high' ? '✓' : '○'}
                         </span>
                       )}
                     </h4>
                     <div className="detail-values">
                       <span className="detail-value">
-                        주간: <strong>{item.populationSignals.daytime.toLocaleString()}명</strong>
-                      </span>
-                      <span className="detail-value">
-                        야간: <strong>{item.populationSignals.nighttime.toLocaleString()}명</strong>
-                      </span>
-                      <span className="detail-value">
-                        변화율: <strong style={{ color: item.populationSignals.changeRate > 0 ? 'var(--chateau-green-600)' : 'var(--gray-500)' }}>
-                          {item.populationSignals.changeRate > 0 ? '+' : ''}{item.populationSignals.changeRate.toFixed(1)}%
-                        </strong>
+                        민원: <strong>{item.humanSignals.complaints}건</strong>
                       </span>
                       <span className="detail-value">
                         추세:{' '}
                         <strong
-                          style={{ color: getTrendColor(item.populationSignals.trend) }}
+                          style={{ color: getTrendColor(item.humanSignals.trend) }}
                         >
-                          {getTrendLabel(item.populationSignals.trend)}
+                          {getTrendLabel(item.humanSignals.trend)}
                         </strong>
                       </span>
+                      <span className="detail-value">
+                        재발: <strong>{item.humanSignals.recurrence}회</strong>
+                      </span>
+                      {item.humanSignals.timePattern && (
+                        <span className="detail-value">
+                          피크 시간: <strong>{item.humanSignals.timePattern.peakHours.join(', ')}시</strong>
+                        </span>
+                      )}
                     </div>
                   </div>
-                )}
 
-                {item.pigeonSignals && (
-                  <div className="detail-group pigeon-signals">
+                  <div className="detail-group">
                     <h4 className="detail-label">
-                      비둘기 신호 (해석 레이어)
-                      {item.dataSource?.pigeon && (
-                        <span className="data-source-badge" title={`출처: ${item.dataSource.pigeon.source}, 신뢰도: ${item.dataSource.pigeon.reliability}`}>
-                          {item.dataSource.pigeon.reliability === 'high' ? '✓' : '○'}
+                      지리 신호
+                      {item.dataSource?.geo && (
+                        <span className="data-source-badge" title={`출처: ${item.dataSource.geo.source}, 신뢰도: ${item.dataSource.geo.reliability}`}>
+                          {item.dataSource.geo.reliability === 'high' ? '✓' : '○'}
                         </span>
                       )}
                     </h4>
-                    {item.pigeonSignals.detected ? (
-                      <div className="pigeon-detected">
-                        <div className="pigeon-status">
-                          <span className="pigeon-intensity">
-                            강도: <strong>{item.pigeonSignals.intensity === 'high' ? '높음' : item.pigeonSignals.intensity === 'medium' ? '보통' : '낮음'}</strong>
-                          </span>
-                          {item.pigeonSignals.activityPattern && (
-                            <span className="pigeon-frequency">
-                              활동 빈도: <strong>{item.pigeonSignals.activityPattern.frequency}회/일</strong>
-                            </span>
-                          )}
-                        </div>
-                        {item.pigeonSignals.interpretation && (
-                          <p className="pigeon-interpretation">{item.pigeonSignals.interpretation}</p>
-                        )}
-                        <div className="pigeon-note">
-                          <small>비둘기 신호는 Core 지표의 보조 검증 레이어로 활용됩니다.</small>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="pigeon-not-detected">
-                        <p className="pigeon-interpretation">
-                          {item.pigeonSignals.interpretation || '비둘기 신호 없음. Core 지표만으로 우선순위 결정됨.'}
-                        </p>
-                      </div>
-                    )}
+                    <div className="detail-values">
+                      <span className="detail-value">
+                        골목 구조: {item.geoSignals.alleyStructure}
+                      </span>
+                      <span className="detail-value">
+                        환기: {item.geoSignals.ventilation}
+                      </span>
+                      <span className="detail-value">
+                        접근성: {item.geoSignals.accessibility}
+                      </span>
+                      <span className="detail-value">
+                        취약도 점수: <strong>{item.geoSignals.vulnerabilityScore}/10</strong>
+                      </span>
+                    </div>
                   </div>
-                )}
+
+                  {item.populationSignals && (
+                    <div className="detail-group">
+                      <h4 className="detail-label">
+                        생활인구 신호
+                        {item.dataSource?.population && (
+                          <span className="data-source-badge" title={`출처: ${item.dataSource.population.source}, 신뢰도: ${item.dataSource.population.reliability}`}>
+                            {item.dataSource.population.reliability === 'high' ? '✓' : '○'}
+                          </span>
+                        )}
+                      </h4>
+                      <div className="detail-values">
+                        <span className="detail-value">
+                          주간: <strong>{item.populationSignals.daytime.toLocaleString()}명</strong>
+                        </span>
+                        <span className="detail-value">
+                          야간: <strong>{item.populationSignals.nighttime.toLocaleString()}명</strong>
+                        </span>
+                        <span className="detail-value">
+                          변화율: <strong style={{ color: item.populationSignals.changeRate > 0 ? 'var(--chateau-green-600)' : 'var(--gray-500)' }}>
+                            {item.populationSignals.changeRate > 0 ? '+' : ''}{item.populationSignals.changeRate.toFixed(1)}%
+                          </strong>
+                        </span>
+                        <span className="detail-value">
+                          추세:{' '}
+                          <strong
+                            style={{ color: getTrendColor(item.populationSignals.trend) }}
+                          >
+                            {getTrendLabel(item.populationSignals.trend)}
+                          </strong>
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {item.pigeonSignals && (
+                    <div className="detail-group pigeon-signals">
+                      <h4 className="detail-label">
+                        비둘기 신호 (해석 레이어)
+                        {item.dataSource?.pigeon && (
+                          <span className="data-source-badge" title={`출처: ${item.dataSource.pigeon.source}, 신뢰도: ${item.dataSource.pigeon.reliability}`}>
+                            {item.dataSource.pigeon.reliability === 'high' ? '✓' : '○'}
+                          </span>
+                        )}
+                      </h4>
+                      {item.pigeonSignals.detected ? (
+                        <div className="pigeon-detected">
+                          <div className="pigeon-status">
+                            <span className="pigeon-intensity">
+                              강도: <strong>{item.pigeonSignals.intensity === 'high' ? '높음' : item.pigeonSignals.intensity === 'medium' ? '보통' : '낮음'}</strong>
+                            </span>
+                            {item.pigeonSignals.activityPattern && (
+                              <span className="pigeon-frequency">
+                                활동 빈도: <strong>{item.pigeonSignals.activityPattern.frequency}회/일</strong>
+                              </span>
+                            )}
+                          </div>
+                          {item.pigeonSignals.interpretation && (
+                            <p className="pigeon-interpretation">{item.pigeonSignals.interpretation}</p>
+                          )}
+                          <div className="pigeon-note">
+                            <small>비둘기 신호는 Core 지표의 보조 검증 레이어로 활용됩니다.</small>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="pigeon-not-detected">
+                          <p className="pigeon-interpretation">
+                            {item.pigeonSignals.interpretation || '비둘기 신호 없음. Core 지표만으로 우선순위 결정됨.'}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
 
                 {item.confounders && Object.values(item.confounders).some(v => v) && (
                   <div className="detail-group confounders">

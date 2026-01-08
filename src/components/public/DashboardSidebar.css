@@ -1,0 +1,42 @@
+.dashboard-sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg) var(--spacing-md);
+  background-color: var(--bg-primary);
+  border-right: 1px solid var(--border-subtle);
+  width: 72px;
+  min-height: calc(100vh - 120px);
+}
+
+.sidebar-icon-button {
+  background: none;
+  border: none;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  font-family: var(--font-sans);
+}
+
+.sidebar-icon-button:hover {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.sidebar-icon-button.active {
+  background-color: var(--primary-light);
+  color: var(--primary);
+}
+
+.sidebar-icon-button svg {
+  width: 24px;
+  height: 24px;
+}
+

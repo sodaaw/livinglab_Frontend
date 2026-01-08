@@ -1,0 +1,397 @@
+.dashboard-content {
+  flex: 1;
+  padding: var(--spacing-2xl) var(--spacing-xl);
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
+  scrollbar-width: thin;
+  scrollbar-color: var(--gray-300) transparent;
+}
+
+.dashboard-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dashboard-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dashboard-content::-webkit-scrollbar-thumb {
+  background-color: var(--gray-300);
+  border-radius: 3px;
+}
+
+.dashboard-content::-webkit-scrollbar-thumb:hover {
+  background-color: var(--gray-400);
+}
+
+.content-header {
+  margin-bottom: var(--spacing-2xl);
+}
+
+.content-title {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-lg);
+  letter-spacing: -1px;
+}
+
+.content-section-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  letter-spacing: -1px;
+}
+
+.content-charts {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-xl);
+  margin-bottom: var(--spacing-2xl);
+}
+
+.chart-section {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  padding: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.chart-header {
+  margin-bottom: var(--spacing-md);
+}
+
+.chart-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+}
+
+.chart-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* 연령대별 성별 분포 차트 */
+.age-gender-chart {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+  height: 240px;
+  position: relative;
+}
+
+.chart-y-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding-right: var(--spacing-md);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  min-width: 50px;
+}
+
+.y-axis-label {
+  height: 25%;
+  display: flex;
+  align-items: center;
+}
+
+.chart-bars-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  height: 100%;
+}
+
+.chart-x-axis-left,
+.chart-x-axis-right {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  padding: 0 var(--spacing-sm);
+  height: 20px;
+}
+
+.chart-x-axis-left {
+  margin-bottom: var(--spacing-xs);
+}
+
+.chart-x-axis-right {
+  margin-top: var(--spacing-xs);
+}
+
+.chart-bars {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: calc(100% - 40px);
+  position: relative;
+  padding: 0 var(--spacing-sm);
+}
+
+.bar-group {
+  display: flex;
+  height: 25%;
+  position: relative;
+  align-items: center;
+}
+
+.bar-male,
+.bar-female {
+  height: 60%;
+  transition: width var(--transition-base);
+  display: flex;
+  align-items: center;
+}
+
+.bar-male {
+  background-color: var(--primary-light);
+  border-radius: 4px 0 0 4px;
+  justify-content: flex-end;
+}
+
+.bar-female {
+  background-color: var(--primary);
+  border-radius: 0 4px 4px 0;
+  justify-content: flex-start;
+}
+
+/* 차트 범례 스타일 개선 */
+.chart-legend {
+  display: flex;
+  gap: var(--spacing-md);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.chart-legend {
+  display: flex;
+  gap: var(--spacing-md);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+}
+
+/* 지역 분포 차트 */
+.region-map-placeholder {
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-lg);
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.region-map-placeholder::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+  opacity: 0.1;
+}
+
+.map-region {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: 8px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: white;
+}
+
+.map-region.seoul {
+  background-color: var(--primary);
+}
+
+.map-region.gyeonggi {
+  background-color: var(--primary);
+  opacity: 0.8;
+}
+
+.map-region.incheon {
+  background-color: var(--primary);
+  opacity: 0.6;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: var(--primary);
+}
+
+.legend-color.seoul {
+  background-color: var(--primary);
+}
+
+.legend-color.gyeonggi {
+  background-color: var(--primary);
+  opacity: 0.8;
+}
+
+.legend-color.incheon {
+  background-color: var(--primary);
+  opacity: 0.6;
+}
+
+.legend-color.other {
+  background-color: var(--gray-300);
+}
+
+/* 직업 분포 차트 */
+.occupation-chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  height: 200px;
+}
+
+.occupation-item {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--spacing-md);
+  border-radius: 8px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: white;
+  transition: all var(--transition-base);
+  min-width: fit-content;
+}
+
+.occupation-item:hover {
+  opacity: 0.95;
+  transform: translateX(1px);
+}
+
+/* 가구 소득 차트 */
+.income-chart {
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.income-ring {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--primary) 0deg 51.84deg,
+    var(--primary-light) 51.84deg 103.68deg,
+    var(--primary) 103.68deg 155.52deg,
+    var(--primary-light) 155.52deg 207.36deg,
+    var(--primary) 207.36deg 259.2deg,
+    var(--primary-light) 259.2deg 360deg
+  );
+  position: relative;
+}
+
+.income-ring::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background-color: var(--bg-primary);
+}
+
+.income-legend {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-sm);
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--primary);
+  display: inline-block;
+}
+
+.content-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--spacing-xl);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.footer-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  letter-spacing: -0.5px;
+}
+
+.footer-title svg {
+  color: var(--text-tertiary);
+}
+
+.footer-button {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  font-family: var(--font-sans);
+}
+
+.footer-button:hover {
+  background-color: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.footer-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* 반응형 */
+@media (max-width: 1200px) {
+  .content-charts {
+    grid-template-columns: 1fr;
+  }
+}
+

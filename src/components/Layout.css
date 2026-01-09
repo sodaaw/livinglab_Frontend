@@ -7,11 +7,6 @@
 .header {
   border-bottom: 1px solid var(--border-subtle);
   background-color: var(--bg-primary);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  backdrop-filter: blur(10px);
-  background-color: rgba(255, 255, 255, 0.8);
 }
 
 .header-content {

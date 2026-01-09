@@ -494,11 +494,11 @@ const PriorityQueue = () => {
                 <div className="detail-group confounders">
                   <h4 className="detail-label">교란요인</h4>
                   <div className="confounder-tags">
-                    {selectedItem.confounders.feeding && <span className="confounder-tag warning">급이</span>}
-                    {selectedItem.confounders.seasonal && <span className="confounder-tag warning">계절성</span>}
-                    {selectedItem.confounders.commercial && <span className="confounder-tag warning">상권</span>}
-                    {selectedItem.confounders.weather && <span className="confounder-tag warning">기상</span>}
-                    {selectedItem.confounders.events && <span className="confounder-tag warning">이벤트</span>}
+                    {selectedItem.confounders.feeding && <span className="confounder-tag warning" data-variant="info">급이</span>}
+                    {selectedItem.confounders.seasonal && <span className="confounder-tag warning" data-variant="info">계절성</span>}
+                    {selectedItem.confounders.commercial && <span className="confounder-tag warning" data-variant="info">상권</span>}
+                    {selectedItem.confounders.weather && <span className="confounder-tag warning" data-variant="info">기상</span>}
+                    {selectedItem.confounders.events && <span className="confounder-tag warning" data-variant="info">이벤트</span>}
                   </div>
                   {selectedItem.expertValidation?.confoundersReviewed && (
                     <small className="confounder-note">국립생태원 자문 반영됨</small>
@@ -675,7 +675,7 @@ const PriorityQueue = () => {
                   </div>
                 </div>
                 {selectedItem.crossValidation.blindSpotRisk === 'high' && (
-                  <div className="blindspot-warning">
+                  <div className="blindspot-warning" data-variant="info">
                     <strong>사각지대 위험 높음</strong> - 추가 조사 권장
                   </div>
                 )}

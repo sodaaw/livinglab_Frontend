@@ -49,13 +49,13 @@ const RegionalTrendMap = ({ trends }: RegionalTrendMapProps) => {
       const getTrendColor = (trend: string) => {
         switch (trend) {
           case 'improving':
-            return '#65c388' // chateau-green-400 (밝은 녹색)
+            return 'var(--chateau-green-400)'
           case 'stable':
-            return '#99dcb2' // chateau-green-300 (더 밝은 녹색)
+            return 'var(--chateau-green-300)'
           case 'monitoring':
-            return '#c6ecd3' // chateau-green-200 (매우 밝은 녹색)
+            return 'var(--chateau-green-200)'
           default:
-            return '#99dcb2'
+            return 'var(--chateau-green-300)'
         }
       }
 
@@ -92,10 +92,10 @@ const RegionalTrendMap = ({ trends }: RegionalTrendMapProps) => {
       const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
         <div class="map-popup">
           <strong>${trend.district}</strong>
-          <div style="margin-top: 8px; font-size: 12px; color: #666;">
+          <div style="margin-top: 8px; font-size: 12px; color: var(--text-secondary);">
             상태: ${getTrendLabel(trend.trend)}
           </div>
-          <div style="margin-top: 4px; font-size: 12px; color: #666;">
+          <div style="margin-top: 4px; font-size: 12px; color: var(--text-secondary);">
             편의성 지수: ${trend.index}
           </div>
         </div>
@@ -127,21 +127,21 @@ const RegionalTrendMap = ({ trends }: RegionalTrendMapProps) => {
           <div className="legend-item">
             <div
               className="legend-color"
-              style={{ backgroundColor: '#65c388' }}
+              style={{ backgroundColor: 'var(--chateau-green-400)' }}
             />
             <span>개선 중</span>
           </div>
           <div className="legend-item">
             <div
               className="legend-color"
-              style={{ backgroundColor: '#99dcb2' }}
+              style={{ backgroundColor: 'var(--chateau-green-300)' }}
             />
             <span>안정적</span>
           </div>
           <div className="legend-item">
             <div
               className="legend-color"
-              style={{ backgroundColor: '#c6ecd3' }}
+              style={{ backgroundColor: 'var(--chateau-green-200)' }}
             />
             <span>모니터링 중</span>
           </div>

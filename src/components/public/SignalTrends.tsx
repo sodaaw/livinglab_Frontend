@@ -86,9 +86,24 @@ const SignalTrends = () => {
       case 'monitoring':
         return 'var(--chateau-green-500)'
       case 'attention':
-        return '#f59e0b'
+        return 'var(--color-info-text)'
       default:
         return 'var(--gray-500)'
+    }
+  }
+
+  const getTrendBackgroundColor = (trend: string) => {
+    switch (trend) {
+      case 'improving':
+        return 'var(--chateau-green-50)'
+      case 'stable':
+        return 'var(--gray-100)'
+      case 'monitoring':
+        return 'var(--chateau-green-100)'
+      case 'attention':
+        return 'var(--color-info-background)'
+      default:
+        return 'var(--gray-100)'
     }
   }
 
@@ -108,7 +123,7 @@ const SignalTrends = () => {
   const getSignalColor = (signal: string) => {
     switch (signal) {
       case 'increasing':
-        return '#f59e0b'
+        return 'var(--color-info-text)'
       case 'stable':
         return 'var(--gray-500)'
       case 'decreasing':
@@ -134,8 +149,9 @@ const SignalTrends = () => {
               <h3 className="trend-district">{trend.district}</h3>
               <span
                 className="trend-badge"
+                data-variant={trend.trend === 'attention' ? 'info' : undefined}
                 style={{
-                  backgroundColor: getTrendColor(trend.trend) + '20',
+                  backgroundColor: getTrendBackgroundColor(trend.trend),
                   color: getTrendColor(trend.trend)
                 }}
               >

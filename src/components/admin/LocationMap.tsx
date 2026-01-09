@@ -57,13 +57,13 @@ const LocationMap = ({
       const getPriorityColor = (priority: string) => {
         switch (priority) {
           case 'high':
-            return '#308952' // chateau-green-600
+            return 'var(--chateau-green-600)'
           case 'medium':
-            return '#41aa69' // chateau-green-500
+            return 'var(--chateau-green-500)'
           case 'low':
-            return '#65c388' // chateau-green-400
+            return 'var(--chateau-green-400)'
           default:
-            return '#308952'
+            return 'var(--chateau-green-600)'
         }
       }
 
@@ -101,7 +101,7 @@ const LocationMap = ({
       const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
         <div class="map-popup">
           <strong>${location.location}</strong>
-          <div style="margin-top: 4px; font-size: 12px; color: #666;">
+          <div style="margin-top: 4px; font-size: 12px; color: var(--text-secondary);">
             편의성 지수: ${location.comfortIndex}
           </div>
         </div>

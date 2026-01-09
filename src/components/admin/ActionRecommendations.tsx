@@ -8,7 +8,6 @@ interface Recommendation {
   expectedImpact: string
   urgency: 'immediate' | 'short-term' | 'medium-term'
   estimatedCost?: string
-  similarCases?: number
   costEffectiveness?: {
     roi: number
     expectedComplaintReduction: number
@@ -37,7 +36,6 @@ const mockRecommendations: Recommendation[] = [
     expectedImpact: '편의성 지수 30점 이상 향상 예상',
     urgency: 'immediate',
     estimatedCost: '약 5,000만원',
-    similarCases: 12,
     costEffectiveness: {
       roi: 185,
       expectedComplaintReduction: 75,
@@ -64,7 +62,6 @@ const mockRecommendations: Recommendation[] = [
     expectedImpact: '편의성 지수 15점 이상 향상 예상',
     urgency: 'short-term',
     estimatedCost: '약 500만원',
-    similarCases: 8,
     costEffectiveness: {
       roi: 240,
       expectedComplaintReduction: 60,
@@ -91,7 +88,6 @@ const mockRecommendations: Recommendation[] = [
     expectedImpact: '현 상태 유지 및 예방적 관리',
     urgency: 'medium-term',
     estimatedCost: '약 100만원',
-    similarCases: 5,
     costEffectiveness: {
       roi: 150,
       expectedComplaintReduction: 30,
@@ -154,17 +150,14 @@ const ActionRecommendations = () => {
               <div className="recommendation-meta">
                 <span
                   className="urgency-badge"
+                  data-variant="severity"
+                  data-level={rec.urgency === 'immediate' ? 'immediate' : rec.urgency === 'short-term' ? 'short' : 'mid'}
                   data-urgency={rec.urgency}
                 >
                   {getUrgencyLabel(rec.urgency)}
                 </span>
                 <span className="intervention-type">{rec.interventionType}</span>
               </div>
-              {rec.similarCases && (
-                <span className="similar-cases">
-                  유사 사례 {rec.similarCases}건
-                </span>
-              )}
             </div>
 
             <h3 className="recommendation-location">{rec.location}</h3>

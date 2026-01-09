@@ -37,6 +37,33 @@
   --bg-secondary: var(--gray-50);
   --border-subtle: var(--gray-200);
 
+  /* Color Tokens - Primary (Green) */
+  --color-primary-background: var(--chateau-green-50);
+  --color-primary-text: var(--chateau-green-700);
+  --color-primary-border: var(--chateau-green-300);
+  --color-primary-background-strong: var(--chateau-green-600);
+  --color-primary-text-strong: var(--white);
+
+  /* Color Tokens - Severity: Immediate (Light Red) - 시급도: 즉시 */
+  --color-severity-immediate-background: #fee2e2;
+  --color-severity-immediate-text: #991b1b;
+  --color-severity-immediate-border: #fca5a5;
+
+  /* Color Tokens - Severity: Short-term (Light Orange) - 시급도: 단기 */
+  --color-severity-short-background: #fed7aa;
+  --color-severity-short-text: #9a3412;
+  --color-severity-short-border: #fdba74;
+
+  /* Color Tokens - Severity: Mid-term (Light Yellow) - 시급도: 중기 */
+  --color-severity-mid-background: #fef3c7;
+  --color-severity-mid-text: #92400e;
+  --color-severity-mid-border: #fde68a;
+
+  /* Color Tokens - Info (Light Skyblue) - 정보성 강조 */
+  --color-info-background: #e0f2fe;
+  --color-info-text: #0369a1;
+  --color-info-border: #7dd3fc;
+
   /* Typography */
   --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',

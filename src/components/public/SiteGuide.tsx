@@ -81,26 +81,26 @@ const SiteGuide = ({ title, description, steps }: SiteGuideProps) => {
                 </div>
                 
                 <div className="step-content">
-                  <div className="step-header">
-                    <div className="step-number">{step.step}</div>
-                    <div className="step-header-text">
-                      <h3 className="step-title">{step.title}</h3>
-                      <p className="step-description">{step.description}</p>
-                    </div>
-                  </div>
+                  <h3 className="step-title">
+                    <span className="step-number-text">{step.step}.</span> {step.title}
+                  </h3>
+                  <p className="step-description">{step.description}</p>
 
-                  <div className="step-sections">
-                    {step.sections.map((section, sectionIndex) => (
-                      <div key={sectionIndex} className="step-section-item">
-                        <div className="section-bullet">
-                          <svg width="6" height="6" viewBox="0 0 6 6" fill="none">
-                            <circle cx="3" cy="3" r="3" fill="currentColor" />
-                          </svg>
+                  {step.sections.length > 0 && (
+                    <div className="step-sections">
+                      <h4 className="step-sections-title">가능한 기능</h4>
+                      {step.sections.map((section, sectionIndex) => (
+                        <div key={sectionIndex} className="step-section-item">
+                          <div className="section-bullet">
+                            <svg width="6" height="6" viewBox="0 0 6 6" fill="none">
+                              <circle cx="3" cy="3" r="3" fill="currentColor" />
+                            </svg>
+                          </div>
+                          <span className="section-text">{section}</span>
                         </div>
-                        <span className="section-text">{section}</span>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

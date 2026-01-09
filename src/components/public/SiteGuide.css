@@ -84,6 +84,8 @@
   padding: var(--spacing-2xl);
   background-color: var(--bg-primary);
   animation: slideDown var(--transition-slow) ease-out;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 @keyframes slideDown {
@@ -121,13 +123,15 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-xl);
 }
 
 .guide-step {
   position: relative;
-  display: flex;
-  gap: var(--spacing-lg);
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: var(--spacing-md);
+  align-items: start;
 }
 
 .step-connector {
@@ -135,22 +139,19 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 32px;
+  width: 24px;
   flex-shrink: 0;
+  padding-top: 2px;
 }
 
 .step-line {
   position: absolute;
-  top: 48px;
+  top: 24px;
   left: 50%;
   transform: translateX(-50%);
-  width: 2px;
-  height: calc(100% + var(--spacing-lg) - 48px);
-  background: linear-gradient(
-    to bottom,
-    var(--chateau-green-400),
-    var(--chateau-green-200)
-  );
+  width: 1px;
+  height: calc(100% + var(--spacing-xl) - 24px);
+  background-color: var(--chateau-green-300);
 }
 
 .guide-step:last-child .step-line {
@@ -160,31 +161,7 @@
 .step-content {
   flex: 1;
   padding-bottom: var(--spacing-lg);
-}
-
-.step-header {
-  display: flex;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-md);
-}
-
-.step-number {
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  color: var(--white);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
-  box-shadow: 0 2px 4px rgba(48, 137, 82, 0.2);
-}
-
-.step-header-text {
-  flex: 1;
+  min-width: 0;
 }
 
 .step-title {
@@ -193,17 +170,24 @@
   color: var(--text-primary);
   margin-bottom: var(--spacing-xs);
   line-height: var(--line-height-tight);
+  padding-top: 0;
+}
+
+.step-number-text {
+  color: var(--chateau-green-700);
+  font-weight: var(--font-weight-bold);
+  margin-right: var(--spacing-xs);
 }
 
 .step-description {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-base);
   color: var(--text-secondary);
   line-height: var(--line-height-relaxed);
+  margin-top: var(--spacing-xs);
 }
 
 .step-sections {
   margin-top: var(--spacing-md);
-  margin-left: calc(32px + var(--spacing-md));
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
@@ -212,22 +196,39 @@
   border-radius: 8px;
 }
 
+.step-sections-title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xs);
+  padding-bottom: var(--spacing-xs);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
 .step-section-item {
   display: flex;
   align-items: flex-start;
   gap: var(--spacing-sm);
+  line-height: 1.5;
 }
 
 .section-bullet {
   flex-shrink: 0;
-  margin-top: 6px;
+  margin-top: 8px;
   color: var(--primary);
+  width: 6px;
+  height: 6px;
+}
+
+.section-bullet svg {
+  display: block;
 }
 
 .section-text {
   font-size: var(--font-size-sm);
   color: var(--text-primary);
-  line-height: var(--line-height-relaxed);
+  line-height: 1.6;
+  flex: 1;
 }
 
 @media (max-width: 768px) {
@@ -247,6 +248,7 @@
 
   .site-guide-content {
     padding: var(--spacing-lg);
+    max-width: 100%;
   }
 
   .guide-header {
@@ -263,21 +265,21 @@
   }
 
   .guide-steps {
-    gap: var(--spacing-md);
+    gap: var(--spacing-lg);
   }
 
   .guide-step {
-    gap: var(--spacing-md);
+    grid-template-columns: 20px 1fr;
+    gap: var(--spacing-sm);
   }
 
   .step-connector {
-    width: 24px;
+    width: 20px;
   }
 
-  .step-number {
-    width: 24px;
-    height: 24px;
-    font-size: var(--font-size-xs);
+  .step-line {
+    top: 20px;
+    height: calc(100% + var(--spacing-lg) - 20px);
   }
 
   .step-title {
@@ -285,8 +287,8 @@
   }
 
   .step-sections {
-    margin-left: calc(24px + var(--spacing-md));
     padding: var(--spacing-sm);
+    gap: var(--spacing-xs);
   }
 
   .section-text {

@@ -395,11 +395,23 @@ const PriorityQueue = () => {
 
   return (
     <div className="priority-queue">
-      <div className="section-header">
-        <h2 className="heading-2">우선순위 검사 대기열</h2>
-        <p className="body-small text-secondary mt-sm">
-          도시 편의성 지수와 신호 분석을 기반으로 한 순위별 검사 목록
-        </p>
+      <div className="section-header priority-section-header">
+        <div className="section-header-content">
+          <div className="section-header-icon priority-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <div>
+            <h2 className="heading-2 priority-heading">우선순위 검사 대기열</h2>
+            <p className="body-small text-secondary mt-sm">
+              도시 편의성 지수와 신호 분석을 기반으로 한 순위별 검사 목록
+            </p>
+          </div>
+        </div>
+        <div className="section-header-badge priority-badge-header">
+          <span className="badge-label">우선 처리 필요</span>
+        </div>
       </div>
 
       <div className="queue-visualization">

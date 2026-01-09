@@ -2,6 +2,61 @@
   width: 100%;
 }
 
+.recommendation-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  background-color: var(--chateau-green-100);
+  border-radius: 10px;
+  border-left: 4px solid var(--chateau-green-500);
+  margin-bottom: var(--spacing-2xl);
+}
+
+.section-header-content {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  flex: 1;
+}
+
+.section-header-icon {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--chateau-green-600);
+  background-color: transparent;
+}
+
+.section-header-icon.recommendation-icon {
+  background-color: transparent;
+}
+
+.recommendation-heading {
+  color: var(--chateau-green-700);
+}
+
+.section-header-badge {
+  flex-shrink: 0;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: 20px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.recommendation-badge-header {
+  background-color: var(--chateau-green-500);
+  color: var(--white);
+}
+
+.badge-label {
+  white-space: nowrap;
+}
+
 .recommendations-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -9,19 +64,22 @@
 }
 
 .recommendation-card {
-  padding: var(--spacing-md);
+  padding: var(--spacing-lg);
   background-color: var(--bg-primary);
-  border: 1px solid var(--border-subtle);
-  border-radius: 6px;
+  border: 2px solid var(--border-subtle);
+  border-radius: 10px;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
   transition: all var(--transition-base);
+  box-shadow: var(--shadow-sm);
 }
 
 .recommendation-card:hover {
-  border-color: var(--chateau-green-300);
-  box-shadow: var(--shadow-sm);
+  border-color: var(--chateau-green-400);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  background-color: var(--chateau-green-50);
 }
 
 .recommendation-header {
@@ -43,8 +101,9 @@
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
   padding: var(--spacing-xs) var(--spacing-md);
-  border-radius: 4px;
-  background-color: var(--chateau-green-50);
+  border-radius: 6px;
+  background-color: var(--chateau-green-100);
+  box-shadow: var(--shadow-sm);
 }
 
 .intervention-type {
@@ -132,12 +191,13 @@
 }
 
 .roi-badge {
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: var(--spacing-xs) var(--spacing-md);
   background-color: var(--chateau-green-600);
   color: var(--white);
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);
+  box-shadow: var(--shadow-sm);
 }
 
 .ce-details {
@@ -236,8 +296,37 @@
 }
 
 @media (max-width: 768px) {
+  .recommendation-section-header {
+    flex-direction: column;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+  }
+
+  .section-header-content {
+    width: 100%;
+  }
+
+  .section-header-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .section-header-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .section-header-badge {
+    width: 100%;
+    text-align: center;
+  }
+
   .recommendations-grid {
     grid-template-columns: 1fr;
+  }
+
+  .recommendation-card {
+    padding: var(--spacing-md);
   }
 
   .ce-header {

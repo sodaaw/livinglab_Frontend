@@ -140,11 +140,23 @@ const ActionRecommendations = () => {
 
   return (
     <div className="action-recommendations">
-      <div className="section-header">
-        <h2 className="heading-2">개입 권고사항</h2>
-        <p className="body-small text-secondary mt-sm">
-          데이터 기반 개입 유형 및 예상 효과 분석
-        </p>
+      <div className="section-header recommendation-section-header">
+        <div className="section-header-content">
+          <div className="section-header-icon recommendation-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+            </svg>
+          </div>
+          <div>
+            <h2 className="heading-2 recommendation-heading">개입 권고사항</h2>
+            <p className="body-small text-secondary mt-sm">
+              데이터 기반 개입 유형 및 예상 효과 분석
+            </p>
+          </div>
+        </div>
+        <div className="section-header-badge recommendation-badge-header">
+          <span className="badge-label">즉시 검토 권장</span>
+        </div>
       </div>
 
       <div className="recommendations-grid">

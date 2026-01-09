@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useMemo } from 'react'
 import PriorityQueue from '../components/admin/PriorityQueue'
 import ActionRecommendations from '../components/admin/ActionRecommendations'
 import BeforeAfterTracking from '../components/admin/BeforeAfterTracking'
@@ -24,12 +24,32 @@ const AdminDashboard = () => {
   }
 
   const menuItems = [
-    { key: 'priority' as const, label: '우선순위 검사 대기열' },
+    { key: 'priority' as const, label: '우선순위 검사 대기열', highlight: true },
+    { key: 'recommendations' as const, label: '개입 권고사항', highlight: true },
     { key: 'blindspot' as const, label: '사각지대 탐지' },
     { key: 'timepattern' as const, label: '시간대별 패턴 분석' },
-    { key: 'recommendations' as const, label: '개입 권고사항' },
     { key: 'tracking' as const, label: '개입 전후 효과 추적' }
   ]
+
+  // 핵심 액션 요약 데이터 (실제로는 API에서 가져올 데이터)
+  const criticalActions = useMemo(() => {
+    const highPriorityCount = 2 // 실제로는 데이터에서 계산
+    const immediateActionsCount = 1 // 실제로는 데이터에서 계산
+    return {
+      highPriorityCount,
+      immediateActionsCount,
+      topPriority: {
+        location: '서울시 강남구 역삼동 123-45',
+        index: 32,
+        urgency: 'immediate'
+      },
+      topRecommendation: {
+        location: '서울시 강남구 역삼동 123-45',
+        type: '구조적 개선',
+        impact: '편의성 지수 30점 이상 향상 예상'
+      }
+    }
+  }, [])
 
   const guideSteps: GuideStep[] = [
     {
@@ -100,12 +120,72 @@ const AdminDashboard = () => {
           steps={guideSteps}
         />
 
+        {/* 핵심 액션 요약 섹션 */}
+        <div className="critical-actions-summary">
+          <div className="critical-actions-header">
+            <h2 className="critical-actions-title">지금 바로 확인해야 할 사항</h2>
+            <p className="critical-actions-subtitle">시스템이 우선적으로 개입을 권고하는 항목입니다</p>
+          </div>
+          
+          <div className="critical-actions-grid">
+            <div 
+              className="critical-action-card priority-card"
+              onClick={() => scrollToSection('priority')}
+            >
+              <div className="critical-action-icon priority-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+              </div>
+              <div className="critical-action-content">
+                <div className="critical-action-main">
+                  <span className="critical-action-label">우선순위 검사 대기</span>
+                  <div className="critical-action-value">
+                    <span className="critical-action-number">{criticalActions.highPriorityCount}</span>
+                    <span className="critical-action-unit">건</span>
+                  </div>
+                </div>
+                <div className="critical-action-detail">
+                  <span className="critical-action-location">{criticalActions.topPriority.location}</span>
+                  <span className="critical-action-index">편의성 지수: {criticalActions.topPriority.index}</span>
+                </div>
+              </div>
+              <div className="critical-action-arrow">→</div>
+            </div>
+
+            <div 
+              className="critical-action-card recommendation-card"
+              onClick={() => scrollToSection('recommendations')}
+            >
+              <div className="critical-action-icon recommendation-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+                </svg>
+              </div>
+              <div className="critical-action-content">
+                <div className="critical-action-main">
+                  <span className="critical-action-label">즉시 개입 권고</span>
+                  <div className="critical-action-value">
+                    <span className="critical-action-number">{criticalActions.immediateActionsCount}</span>
+                    <span className="critical-action-unit">건</span>
+                  </div>
+                </div>
+                <div className="critical-action-detail">
+                  <span className="critical-action-type">{criticalActions.topRecommendation.type}</span>
+                  <span className="critical-action-impact">{criticalActions.topRecommendation.impact}</span>
+                </div>
+              </div>
+              <div className="critical-action-arrow">→</div>
+            </div>
+          </div>
+        </div>
+
         <nav className="dashboard-nav">
           <div className="nav-menu">
             {menuItems.map((item) => (
               <button
                 key={item.key}
-                className="nav-menu-item"
+                className={`nav-menu-item ${item.highlight ? 'highlight' : ''}`}
                 onClick={() => scrollToSection(item.key)}
               >
                 {item.label}
@@ -115,8 +195,12 @@ const AdminDashboard = () => {
         </nav>
 
         <div className="dashboard-content">
-          <section ref={sections.priority} id="priority" className="dashboard-section">
+          <section ref={sections.priority} id="priority" className="dashboard-section priority-section">
             <PriorityQueue />
+          </section>
+
+          <section ref={sections.recommendations} id="recommendations" className="dashboard-section recommendation-section">
+            <ActionRecommendations />
           </section>
 
           <section ref={sections.blindspot} id="blindspot" className="dashboard-section">
@@ -125,10 +209,6 @@ const AdminDashboard = () => {
 
           <section ref={sections.timepattern} id="timepattern" className="dashboard-section">
             <TimePatternAnalysis />
-          </section>
-
-          <section ref={sections.recommendations} id="recommendations" className="dashboard-section">
-            <ActionRecommendations />
           </section>
 
           <section ref={sections.tracking} id="tracking" className="dashboard-section">

@@ -43,6 +43,18 @@
   background-color: var(--chateau-green-50);
 }
 
+.nav-menu-item.highlight {
+  color: var(--chateau-green-700);
+  font-weight: var(--font-weight-semibold);
+  background-color: var(--chateau-green-100);
+  border: 1px solid var(--chateau-green-300);
+}
+
+.nav-menu-item.highlight:hover {
+  background-color: var(--chateau-green-200);
+  border-color: var(--chateau-green-500);
+}
+
 .nav-menu-item:active {
   transform: scale(0.98);
 }
@@ -56,6 +68,223 @@
 .dashboard-section {
   width: 100%;
   scroll-margin-top: 100px;
+}
+
+/* 핵심 액션 요약 섹션 */
+.critical-actions-summary {
+  margin-bottom: var(--spacing-4xl);
+  padding: var(--spacing-xl);
+  background-color: var(--chateau-green-50);
+  border-radius: 12px;
+  border: 1px solid var(--chateau-green-200);
+}
+
+.critical-actions-header {
+  margin-bottom: var(--spacing-xl);
+  text-align: center;
+}
+
+.critical-actions-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--chateau-green-700);
+  letter-spacing: -0.5px;
+  margin-bottom: var(--spacing-sm);
+}
+
+.critical-actions-subtitle {
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+}
+
+.critical-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--spacing-md);
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.critical-action-card {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--white);
+  border: 1px solid var(--chateau-green-300);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-sm);
+  min-height: auto;
+}
+
+.critical-action-card:hover {
+  border-color: var(--chateau-green-600);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.critical-action-card.priority-card {
+  border-color: var(--chateau-green-400);
+  background-color: var(--white);
+}
+
+.critical-action-card.recommendation-card {
+  border-color: var(--chateau-green-500);
+  background-color: var(--white);
+}
+
+.critical-action-icon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--chateau-green-600);
+}
+
+.critical-action-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.critical-action-icon.priority-icon {
+  background-color: transparent;
+}
+
+.critical-action-icon.recommendation-icon {
+  background-color: transparent;
+}
+
+.critical-action-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.critical-action-main {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.critical-action-label {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.critical-action-value {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-xs);
+}
+
+.critical-action-number {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--chateau-green-700);
+  letter-spacing: -1px;
+}
+
+.critical-action-unit {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-secondary);
+}
+
+.critical-action-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.critical-action-location,
+.critical-action-type {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.critical-action-index,
+.critical-action-impact {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.critical-action-arrow {
+  flex-shrink: 0;
+  font-size: var(--font-size-lg);
+  color: var(--chateau-green-600);
+  font-weight: var(--font-weight-bold);
+  transition: transform var(--transition-base);
+}
+
+.critical-action-card:hover .critical-action-arrow {
+  transform: translateX(4px);
+}
+
+/* 우선순위 및 권고 섹션 강조 */
+.dashboard-section.priority-section,
+.dashboard-section.recommendation-section {
+  position: relative;
+  padding: var(--spacing-2xl);
+  background-color: var(--bg-primary);
+  border-radius: 12px;
+  margin-bottom: var(--spacing-4xl);
+}
+
+.dashboard-section.priority-section {
+  border-left: 4px solid var(--chateau-green-600);
+  background-color: var(--chateau-green-50);
+}
+
+.dashboard-section.recommendation-section {
+  border-left: 4px solid var(--chateau-green-500);
+  background-color: var(--chateau-green-100);
+}
+
+@media (max-width: 768px) {
+  .critical-actions-summary {
+    padding: var(--spacing-lg);
+  }
+
+  .critical-actions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .critical-action-card {
+    padding: var(--spacing-md);
+    gap: var(--spacing-md);
+  }
+
+  .critical-action-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .critical-action-number {
+    font-size: var(--font-size-2xl);
+  }
+
+  .dashboard-section.priority-section,
+  .dashboard-section.recommendation-section {
+    padding: var(--spacing-lg);
+  }
 }
 
 @media (max-width: 768px) {

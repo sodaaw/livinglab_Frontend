@@ -47,7 +47,8 @@
 .chart-section {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
+  min-height: 0;
 }
 
 .chart-title {

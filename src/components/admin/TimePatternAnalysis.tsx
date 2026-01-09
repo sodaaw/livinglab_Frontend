@@ -76,7 +76,7 @@ const TimePatternAnalysis = () => {
                 <ResponsiveContainer width="100%" height={300}>
                   <ComposedChart 
                     data={data.hourPattern}
-                    margin={{ top: 5, right: 80, left: 20, bottom: 5 }}
+                    margin={{ top: 10, right: 30, left: 20, bottom: 60 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--gray-200)" />
                     <XAxis 
@@ -90,6 +90,7 @@ const TimePatternAnalysis = () => {
                       stroke="var(--gray-600)"
                       style={{ fontSize: '12px' }}
                       label={{ value: '민원 건수', angle: -90, position: 'insideLeft' }}
+                      domain={[0, 'dataMax + 2']}
                     />
                     <YAxis 
                       yAxisId="right"
@@ -97,6 +98,7 @@ const TimePatternAnalysis = () => {
                       stroke="var(--gray-600)"
                       style={{ fontSize: '12px' }}
                       label={{ value: '생활인구', angle: 90, position: 'insideRight' }}
+                      domain={[0, 'dataMax + 100']}
                     />
                     <Tooltip
                       contentStyle={{
@@ -120,9 +122,9 @@ const TimePatternAnalysis = () => {
                       radius={[4, 4, 0, 0]}
                     />
                     <Legend 
-                      verticalAlign="middle" 
-                      align="left"
-                      wrapperStyle={{ paddingRight: '20px', left: 0 }}
+                      verticalAlign="bottom" 
+                      align="center"
+                      wrapperStyle={{ paddingTop: '20px' }}
                     />
                   </ComposedChart>
                 </ResponsiveContainer>

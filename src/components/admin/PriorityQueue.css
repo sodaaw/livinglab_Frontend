@@ -10,12 +10,11 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: var(--spacing-lg);
-  padding: var(--spacing-lg);
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
   background-color: var(--chateau-green-50);
   border-radius: 10px;
-  border-left: 4px solid var(--chateau-green-600);
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-xl);
 }
 
 .section-header-content {

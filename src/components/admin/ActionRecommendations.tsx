@@ -125,18 +125,6 @@ const ActionRecommendations = () => {
     }
   }
 
-  const getUrgencyColor = (urgency: string) => {
-    switch (urgency) {
-      case 'immediate':
-        return 'var(--chateau-green-600)'
-      case 'short-term':
-        return 'var(--chateau-green-500)'
-      case 'medium-term':
-        return 'var(--gray-500)'
-      default:
-        return 'var(--gray-500)'
-    }
-  }
 
   return (
     <div className="action-recommendations">
@@ -166,7 +154,7 @@ const ActionRecommendations = () => {
               <div className="recommendation-meta">
                 <span
                   className="urgency-badge"
-                  style={{ color: getUrgencyColor(rec.urgency) }}
+                  data-urgency={rec.urgency}
                 >
                   {getUrgencyLabel(rec.urgency)}
                 </span>

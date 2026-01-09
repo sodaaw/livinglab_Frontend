@@ -6,12 +6,11 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: var(--spacing-lg);
-  padding: var(--spacing-lg);
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
   background-color: var(--chateau-green-100);
   border-radius: 10px;
-  border-left: 4px solid var(--chateau-green-500);
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-xl);
 }
 
 .section-header-content {
@@ -59,18 +58,18 @@
 
 .recommendations-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: var(--spacing-md);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-sm);
 }
 
 .recommendation-card {
-  padding: var(--spacing-lg);
+  padding: var(--spacing-md);
   background-color: var(--bg-primary);
   border: 2px solid var(--border-subtle);
   border-radius: 10px;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-xs);
   transition: all var(--transition-base);
   box-shadow: var(--shadow-sm);
 }
@@ -102,8 +101,25 @@
   font-weight: var(--font-weight-semibold);
   padding: var(--spacing-xs) var(--spacing-md);
   border-radius: 6px;
-  background-color: var(--chateau-green-100);
   box-shadow: var(--shadow-sm);
+}
+
+/* 즉시 = 빨강 계열 (가장 강조) */
+.urgency-badge[data-urgency="immediate"] {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* 단기 = 주황 계열 */
+.urgency-badge[data-urgency="short-term"] {
+  background-color: #fed7aa;
+  color: #9a3412;
+}
+
+/* 중기 = 노랑/옅은 앰버 계열 */
+.urgency-badge[data-urgency="medium-term"] {
+  background-color: #fef3c7;
+  color: #92400e;
 }
 
 .intervention-type {

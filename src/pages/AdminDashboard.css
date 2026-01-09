@@ -1,5 +1,9 @@
 .admin-dashboard {
-  padding: var(--spacing-3xl) 0;
+  padding: var(--spacing-2xl) 0;
+}
+
+.admin-dashboard .container {
+  max-width: 1200px;
 }
 
 .dashboard-header {
@@ -62,7 +66,7 @@
 .dashboard-content {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-4xl);
+  gap: var(--spacing-3xl);
 }
 
 .dashboard-section {
@@ -266,19 +270,17 @@
 .dashboard-section.priority-section,
 .dashboard-section.recommendation-section {
   position: relative;
-  padding: var(--spacing-2xl);
+  padding: var(--spacing-xl);
   background-color: var(--bg-primary);
   border-radius: 12px;
-  margin-bottom: var(--spacing-4xl);
+  margin-bottom: var(--spacing-3xl);
 }
 
 .dashboard-section.priority-section {
-  border-left: 4px solid var(--chateau-green-600);
   background-color: var(--chateau-green-50);
 }
 
 .dashboard-section.recommendation-section {
-  border-left: 4px solid var(--chateau-green-500);
   background-color: var(--chateau-green-100);
 }
 

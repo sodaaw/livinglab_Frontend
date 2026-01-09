@@ -210,7 +210,6 @@
   padding: var(--spacing-md);
   background-color: var(--bg-secondary);
   border-radius: 8px;
-  border-left: 3px solid var(--primary);
 }
 
 .step-section-item {

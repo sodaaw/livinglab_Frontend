@@ -10,6 +10,7 @@ interface InspectionItem {
   lng: number
   comfortIndex: number
   priority: 'high' | 'medium' | 'low'
+  uciGrade?: string // 원본 uci_grade 보존
   humanSignals: {
     complaints: number
     trend: 'increasing' | 'stable' | 'decreasing'
@@ -58,6 +59,7 @@ interface InspectionItem {
     factors: string[]
     signalRiseRate: number
     structuralVulnerability: number
+    keyDrivers?: Array<{ signal: string; value: number }> // 원본 key_drivers 데이터 보존
   }
   dataSource?: {
     human: { source: string; reliability: 'high' | 'medium' | 'low'; lastUpdate: string }
@@ -355,6 +357,52 @@ interface PriorityQueueApiResponse {
 
 // API 응답을 InspectionItem으로 변환하는 함수
 const mapApiResponseToInspectionItem = (apiItem: PriorityQueueApiResponse, index: number): InspectionItem => {
+  // key_drivers에서 정보 추출
+  const keyDrivers = apiItem.key_drivers || []
+  
+  // key_drivers의 signal 이름을 기반으로 정보 추출
+  const getSignalValue = (signalName: string): number | null => {
+    const driver = keyDrivers.find(d => d.signal === signalName)
+    return driver ? driver.value : null
+  }
+
+  // key_drivers의 signal 이름을 기반으로 trend 추론
+  const inferTrend = (): 'increasing' | 'stable' | 'decreasing' => {
+    const signals = keyDrivers.map(d => d.signal.toLowerCase())
+    const growthSignals = signals.filter(s => s.includes('growth') || s.includes('increase') || s.includes('증가'))
+    const decreaseSignals = signals.filter(s => s.includes('decrease') || s.includes('감소'))
+    
+    if (growthSignals.length > 0) return 'increasing'
+    if (decreaseSignals.length > 0) return 'decreasing'
+    return 'stable'
+  }
+
+  // key_drivers의 alley_density를 기반으로 골목 구조 추론
+  const inferAlleyStructure = (): string => {
+    const alleyDensity = getSignalValue('alley_density')
+    if (alleyDensity === null) return '보통'
+    if (alleyDensity >= 0.8) return '좁음'
+    if (alleyDensity <= 0.3) return '넓음'
+    return '보통'
+  }
+
+  // key_drivers의 value를 기반으로 vulnerability score 추론 (0-10 스케일)
+  const inferVulnerabilityScore = (): number => {
+    if (keyDrivers.length === 0) return 5.0
+    // key_drivers의 최대값을 0-10 스케일로 변환 (가정: value가 0-1 범위)
+    const maxValue = Math.max(...keyDrivers.map(d => d.value))
+    return Math.min(Math.round(maxValue * 10 * 2) / 2, 10) // 0.5 단위로 반올림
+  }
+
+  // repeat_ratio를 재발 비율로 변환 (0-100%로 표시)
+  const recurrence = getSignalValue('repeat_ratio')
+    ? Math.round(getSignalValue('repeat_ratio')! * 100) // 비율을 퍼센트로 변환
+    : null
+
+  const trend = inferTrend()
+  const vulnerabilityScore = inferVulnerabilityScore()
+  const alleyStructure = inferAlleyStructure()
+
   // API 응답에서 기본 정보 추출
   const baseItem: InspectionItem = {
     id: apiItem.unit_id || `item-${index}`,
@@ -364,22 +412,33 @@ const mapApiResponseToInspectionItem = (apiItem: PriorityQueueApiResponse, index
     comfortIndex: Math.round(apiItem.uci_score),
     priority: apiItem.uci_grade === 'E' || apiItem.uci_grade === 'D' ? 'high' : 
               apiItem.uci_grade === 'C' ? 'medium' : 'low',
+    uciGrade: apiItem.uci_grade, // 원본 등급 보존
     humanSignals: {
-      complaints: 0, // API에서 제공되지 않음 - 더미데이터 유지
-      trend: 'stable',
-      recurrence: 0,
+      complaints: 0, // API에서 실제 민원 건수 제공되지 않음 (why_summary에 증감률만 있음)
+      trend: trend, // key_drivers의 signal 이름 기반 추론 (growth -> increasing)
+      recurrence: recurrence || 0, // repeat_ratio를 기반으로 추정 (없으면 0)
     },
     geoSignals: {
-      alleyStructure: '보통', // API에서 제공되지 않음
-      ventilation: '보통',
-      accessibility: '보통',
-      vulnerabilityScore: 5.0,
+      alleyStructure: alleyStructure, // alley_density 기반 추론 (alley_density가 없으면 '보통')
+      ventilation: '보통', // API에서 제공되지 않음 (사용하지 않음)
+      accessibility: '보통', // API에서 제공되지 않음 (사용하지 않음)
+      vulnerabilityScore: vulnerabilityScore, // key_drivers의 value 기반 추론
     },
     priorityReason: {
       summary: apiItem.why_summary || '',
-      factors: apiItem.key_drivers?.map(d => d.signal) || [],
-      signalRiseRate: apiItem.key_drivers?.[0]?.value || 0,
-      structuralVulnerability: 5.0,
+      factors: keyDrivers.map(d => {
+        // signal 이름을 한국어로 변환 (선택적)
+        const signalMap: { [key: string]: string } = {
+          'complaint_odor_growth': '악취 민원 증가',
+          'night_ratio': '야간 집중도',
+          'alley_density': '골목 밀도',
+          'repeat_ratio': '반복 신고율',
+        }
+        return signalMap[d.signal] || d.signal
+      }),
+      signalRiseRate: keyDrivers[0]?.value || 0,
+      structuralVulnerability: vulnerabilityScore,
+      keyDrivers: keyDrivers, // 원본 key_drivers 데이터 보존
     },
   }
   return baseItem
@@ -471,6 +530,25 @@ const PriorityQueue = () => {
       default:
         return trend
     }
+  }
+
+  // signal 이름을 한국어로 변환하는 함수
+  const getSignalLabel = (signal: string): string => {
+    const signalMap: { [key: string]: string } = {
+      'complaint_odor_growth': '악취 민원 증가',
+      'night_ratio': '야간 집중도',
+      'alley_density': '골목 밀도',
+      'repeat_ratio': '반복 신고율',
+    }
+    return signalMap[signal] || signal
+  }
+
+  // value를 퍼센트나 소수점 형식으로 포맷팅
+  const formatSignalValue = (signal: string, value: number): string => {
+    if (signal.includes('ratio') || signal.includes('growth')) {
+      return (value * 100).toFixed(0) + '%'
+    }
+    return value.toFixed(2)
   }
 
   const getTrendColor = (trend: string) => {
@@ -641,6 +719,11 @@ const PriorityQueue = () => {
               >
                 편의성 지수: {selectedItem.comfortIndex}
               </span>
+              {selectedItem.uciGrade && (
+                <span className="index-badge" title="편의성 지수 등급">
+                  등급: {selectedItem.uciGrade}
+                </span>
+              )}
               {selectedItem.expertValidation?.verified && (
                 <span className="expert-badge" title={selectedItem.expertValidation.source}>
                   전문가 검증
@@ -660,6 +743,17 @@ const PriorityQueue = () => {
                 <div className="detail-group priority-reason">
                   <h4 className="detail-label">우선순위 결정 근거</h4>
                   <p className="priority-summary">{selectedItem.priorityReason.summary}</p>
+                  {selectedItem.priorityReason.keyDrivers && selectedItem.priorityReason.keyDrivers.length > 0 && (
+                    <div className="key-drivers-list" style={{ marginTop: 'var(--spacing-sm)' }}>
+                      {selectedItem.priorityReason.keyDrivers
+                        .filter(driver => driver.signal !== 'total_complaints') // total_complaints 제외
+                        .map((driver, idx) => (
+                          <div key={idx} className="key-driver-item" style={{ marginTop: 'var(--spacing-xs)', fontSize: 'var(--font-size-sm)' }}>
+                            <strong>{getSignalLabel(driver.signal)}</strong>: {formatSignalValue(driver.signal, driver.value)}
+                          </div>
+                        ))}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -692,9 +786,6 @@ const PriorityQueue = () => {
                 </h4>
                 <div className="detail-values">
                   <span className="detail-value">
-                    민원: <strong>{selectedItem.humanSignals.complaints}건</strong>
-                  </span>
-                  <span className="detail-value">
                     추세:{' '}
                     <strong
                       style={{ color: getTrendColor(selectedItem.humanSignals.trend) }}
@@ -702,9 +793,11 @@ const PriorityQueue = () => {
                       {getTrendLabel(selectedItem.humanSignals.trend)}
                     </strong>
                   </span>
-                  <span className="detail-value">
-                    재발: <strong>{selectedItem.humanSignals.recurrence}회</strong>
-                  </span>
+                  {selectedItem.humanSignals.recurrence > 0 && (
+                    <span className="detail-value">
+                      재발: <strong>{selectedItem.humanSignals.recurrence}%</strong>
+                    </span>
+                  )}
                   {selectedItem.humanSignals.timePattern && (
                     <span className="detail-value">
                       피크 시간: <strong>{selectedItem.humanSignals.timePattern.peakHours.join(', ')}시</strong>
@@ -723,15 +816,11 @@ const PriorityQueue = () => {
                   )}
                 </h4>
                 <div className="detail-values">
-                  <span className="detail-value">
-                    골목 구조: {selectedItem.geoSignals.alleyStructure}
-                  </span>
-                  <span className="detail-value">
-                    환기: {selectedItem.geoSignals.ventilation}
-                  </span>
-                  <span className="detail-value">
-                    접근성: {selectedItem.geoSignals.accessibility}
-                  </span>
+                  {selectedItem.geoSignals.alleyStructure && (
+                    <span className="detail-value">
+                      골목 구조: {selectedItem.geoSignals.alleyStructure}
+                    </span>
+                  )}
                   <span className="detail-value">
                     취약도 점수: <strong>{selectedItem.geoSignals.vulnerabilityScore}/10</strong>
                   </span>

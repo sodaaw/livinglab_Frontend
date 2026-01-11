@@ -338,21 +338,25 @@
   font-weight: var(--font-weight-medium);
 }
 
+/* 시급도/우선순위에 따른 색상 */
 .priority-high {
-  background-color: var(--chateau-green-200);
-  color: var(--chateau-green-800);
+  /* 높은 우선순위 → Red/Orange (시급도 높음) */
+  background-color: var(--color-severity-immediate-background);
+  color: var(--color-severity-immediate-text);
   font-weight: var(--font-weight-semibold);
   box-shadow: var(--shadow-sm);
 }
 
 .priority-medium {
-  background-color: var(--chateau-green-50);
-  color: var(--chateau-green-600);
+  /* 중간 우선순위 → Orange/Yellow (시급도 중간) */
+  background-color: var(--color-severity-short-background);
+  color: var(--color-severity-short-text);
 }
 
 .priority-low {
-  background-color: var(--gray-100);
-  color: var(--gray-600);
+  /* 낮은 우선순위 → Green (안정) */
+  background-color: var(--chateau-green-50);
+  color: var(--chateau-green-600);
 }
 
 .index-badge {
@@ -579,16 +583,17 @@
 }
 
 .confounder-tag.warning {
-  background-color: var(--color-info-background);
-  color: var(--color-info-text);
-  border: 1px solid var(--color-info-border);
+  /* 정보성 요소는 Green 기반 Neutral-Accent */
+  background-color: var(--chateau-green-100);
+  color: var(--chateau-green-700);
+  border: 1px solid var(--chateau-green-300);
 }
 
-/* 정보성 강조 요소 - data-variant="info" */
+/* 정보성 강조 요소 - data-variant="info" → Green 기반 Neutral-Accent */
 [data-variant="info"] {
-  background-color: var(--color-info-background);
-  color: var(--color-info-text);
-  border: 1px solid var(--color-info-border);
+  background-color: var(--chateau-green-50);
+  color: var(--chateau-green-700);
+  border: 1px solid var(--chateau-green-300);
 }
 
 .confounder-note {
@@ -645,11 +650,12 @@
 }
 
 .blindspot-warning {
+  /* 사각지대 위험 높음 → Red/Orange (상태 악화/부정적 지표) */
   margin-top: var(--spacing-sm);
   padding: var(--spacing-sm);
-  background-color: var(--color-info-background);
-  color: var(--color-info-text);
-  border: 1px solid var(--color-info-border);
+  background-color: var(--color-severity-short-background);
+  color: var(--color-severity-short-text);
+  border: 1px solid var(--color-severity-short-border);
   border-radius: 4px;
   font-size: var(--font-size-sm);
 }

@@ -554,13 +554,44 @@ const PriorityQueue = () => {
   const getTrendColor = (trend: string) => {
     switch (trend) {
       case 'increasing':
-        return 'var(--chateau-green-600)'
+        // 악화 추세는 Red/Orange 사용
+        return 'var(--color-severity-immediate-text)'
       case 'stable':
         return 'var(--gray-500)'
       case 'decreasing':
-        return 'var(--chateau-green-400)'
+        // 개선 추세는 Green 사용
+        return 'var(--chateau-green-600)'
       default:
         return 'var(--gray-500)'
+    }
+  }
+  
+  // 취약도 점수에 따른 색상 (높을수록 위험)
+  const getVulnerabilityColor = (score: number) => {
+    if (score >= 7) {
+      // 취약도 높음 (위험) → Red/Orange
+      return 'var(--color-severity-immediate-text)'
+    } else if (score >= 5) {
+      // 취약도 중간 → Orange/Yellow
+      return 'var(--color-severity-short-text)'
+    } else {
+      // 취약도 낮음 → Green
+      return 'var(--chateau-green-600)'
+    }
+  }
+  
+  // 등급에 따른 색상 (E, D는 낮은 등급)
+  const getGradeColor = (grade?: string) => {
+    if (!grade) return 'var(--gray-600)'
+    if (grade === 'E' || grade === 'D') {
+      // 낮은 등급 → Red/Orange
+      return 'var(--color-severity-immediate-text)'
+    } else if (grade === 'C') {
+      // 중간 등급 → Orange/Yellow
+      return 'var(--color-severity-short-text)'
+    } else {
+      // 높은 등급 (A, B) → Green
+      return 'var(--chateau-green-600)'
     }
   }
 
@@ -720,7 +751,7 @@ const PriorityQueue = () => {
                 편의성 지수: {selectedItem.comfortIndex}
               </span>
               {selectedItem.uciGrade && (
-                <span className="index-badge" title="편의성 지수 등급">
+                <span className="index-badge" title="편의성 지수 등급" style={{ color: getGradeColor(selectedItem.uciGrade) }}>
                   등급: {selectedItem.uciGrade}
                 </span>
               )}
@@ -822,7 +853,7 @@ const PriorityQueue = () => {
                     </span>
                   )}
                   <span className="detail-value">
-                    취약도 점수: <strong>{selectedItem.geoSignals.vulnerabilityScore}/10</strong>
+                    취약도 점수: <strong style={{ color: getVulnerabilityColor(selectedItem.geoSignals.vulnerabilityScore) }}>{selectedItem.geoSignals.vulnerabilityScore}/10</strong>
                   </span>
                 </div>
               </div>
@@ -845,7 +876,7 @@ const PriorityQueue = () => {
                       야간: <strong>{selectedItem.populationSignals.nighttime.toLocaleString()}명</strong>
                     </span>
                     <span className="detail-value">
-                      변화율: <strong style={{ color: selectedItem.populationSignals.changeRate > 0 ? 'var(--chateau-green-600)' : 'var(--gray-500)' }}>
+                      변화율: <strong style={{ color: selectedItem.populationSignals.changeRate > 0 ? 'var(--color-severity-immediate-text)' : 'var(--chateau-green-600)' }}>
                         {selectedItem.populationSignals.changeRate > 0 ? '+' : ''}{selectedItem.populationSignals.changeRate.toFixed(1)}%
                       </strong>
                     </span>

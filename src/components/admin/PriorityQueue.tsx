@@ -724,6 +724,7 @@ const PriorityQueue = () => {
         console.log('📊 [우선순위 검사 대기열] Human Signal API 응답:', {
           endpoint: '/api/v1/dashboard/human-signal',
           unitId,
+          location: selectedItem?.location || '위치 정보 없음',
           date,
           response
         })

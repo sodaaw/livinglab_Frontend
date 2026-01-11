@@ -28,6 +28,8 @@ frontend/
 │   │   └── PublicView.tsx        # 시민용 공개 뷰 페이지
 │   ├── styles/
 │   │   └── design-system.css    # 디자인 시스템 (색상, 타이포그래피, 간격)
+│   ├── utils/
+│   │   └── api.ts               # API 클라이언트 및 유틸리티
 │   ├── App.tsx                  # 라우팅 설정
 │   └── main.tsx                  # 애플리케이션 진입점
 ├── package.json
@@ -56,8 +58,9 @@ frontend/
 npm install
 
 # 환경 변수 설정 (선택사항)
-# .env 파일을 생성하고 Mapbox 토큰을 설정하세요
-# VITE_MAPBOX_TOKEN=your_token_here
+# .env.local 파일을 생성하고 설정하세요
+# VITE_MAPBOX_TOKEN=your_token_here          # Mapbox 토큰 (선택사항)
+# VITE_API_BASE_URL=https://backend-rjk3.onrender.com  # 백엔드 API URL (선택사항, 기본값 사용 가능)
 # 토큰이 없어도 기본 공개 토큰으로 동작합니다
 
 # 개발 서버 실행
@@ -67,11 +70,83 @@ npm run dev
 npm run build
 ```
 
+## 백엔드 API 연동
+
+프론트엔드는 백엔드 API와 연동되어 실시간 데이터를 표시합니다. API 연동이 실패할 경우 자동으로 더미데이터로 전환되어 UI는 정상적으로 작동합니다.
+
+### 백엔드 서버
+- **기본 URL**: `https://backend-rjk3.onrender.com`
+- **환경 변수**: `VITE_API_BASE_URL`로 커스터마이징 가능
+
+### API 연동 상태
+
+#### ✅ 연동 완료된 기능 (관리자 대시보드)
+
+1. **우선순위 검사 대기열** (`PriorityQueue`)
+   - API: `GET /api/v1/priority-queue`
+   - 날짜별 우선순위 대기열 데이터 조회
+   - Fallback: 더미데이터 자동 전환
+
+2. **개입 권고사항** (`ActionRecommendations`)
+   - API: `GET /api/v1/action-cards`
+   - 날짜 및 지역별 권고사항 조회
+   - Fallback: 더미데이터 자동 전환
+
+3. **시간대별 패턴 분석** (`TimePatternAnalysis`)
+   - API: `GET /api/v1/dashboard/time-pattern`
+   - 지역별 시간 패턴 데이터 조회
+   - Fallback: 더미데이터 자동 전환
+
+4. **사각지대 탐지** (`BlindSpotDetection`)
+   - API: `GET /api/v1/dashboard/blind-spots`
+   - 위험도별 사각지대 탐지 데이터 조회
+   - Fallback: 더미데이터 자동 전환
+
+5. **개입 전후 효과 추적** (`BeforeAfterTracking`)
+   - API: `GET /api/v1/dashboard/interventions`, `GET /api/v1/dashboard/interventions/{id}/effect`
+   - 완료된 개입 효과 데이터 조회
+   - Fallback: 더미데이터 자동 전환
+
+6. **핵심 액션 요약** (`AdminDashboard`)
+   - 우선순위 큐와 액션 카드를 통합하여 요약 정보 표시
+   - 실시간 우선순위 검사 대기 건수 및 즉시 개입 권고 건수 계산
+
+#### 🔄 더미데이터 유지 기능
+
+일부 상세 정보는 API 응답에 포함되지 않아 더미데이터로 표시됩니다:
+- 우선순위 큐 내부의 상세 신호 정보 (`humanSignals`, `geoSignals`, `populationSignals` 상세 데이터)
+- 개입 권고사항의 비용-효과 분석 상세 정보
+- 전문가 검증 정보
+
+#### 📝 API 클라이언트 구조
+
+`src/utils/api.ts`에 `ApiClient` 클래스가 구현되어 있으며, 모든 API 호출을 중앙 관리합니다:
+- 공통 에러 처리
+- 로딩 상태 관리
+- 타입 안전성 보장
+- 상세한 에러 로깅
+
+### API 연동 패턴
+
+모든 컴포넌트는 다음 패턴을 따릅니다:
+1. API 호출 시도
+2. 성공 시: 실제 데이터 표시
+3. 실패 시: 에러 메시지 표시 + 더미데이터로 자동 전환
+4. 로딩 상태 표시
+
 ## 주요 기능
 
 ### 관리자 대시보드
 
-#### 우선순위 검사 대기열
+#### 핵심 액션 요약
+대시보드 상단에 우선순위가 높은 항목을 한눈에 볼 수 있는 요약 카드를 제공합니다.
+
+- **우선순위 검사 대기 건수**: E/D 등급 지역의 개수
+- **즉시 개입 권고 건수**: urgent/immediate 태그가 있는 권고사항 개수
+- **최우선 지역 정보**: 상위 1순위 지역의 편의성 지수 및 위치
+- **최우선 권고사항**: 가장 우선순위가 높은 개입 권고사항 정보
+
+#### 우선순위 검사 대기열 ✅ API 연동 완료
 도시 편의성 지수를 기반으로 한 순위별 검사 목록을 제공합니다.
 
 - **대기열 시각화**: 각 지역을 순위별로 카드 형태로 표시하여 실제 대기열처럼 시각화
@@ -83,13 +158,21 @@ npm run build
 - **사각지대 위험도**: 신호 간 불일치를 통한 사각지대 탐지 및 위험도 평가
 - **지수 계산 근거**: 편의성 지수 계산 방법 및 데이터 출처 상세 정보 제공
 
-#### 사각지대 탐지
+#### 사각지대 탐지 ✅ API 연동 완료
 신호 간 불일치를 분석하여 행정 데이터가 놓치는 사각지대를 탐지합니다.
 
-#### 시간대별 패턴 분석
+- 위험도별 사각지대 목록 표시
+- 탐지 사유 및 권고 조치 표시
+- 지도 기반 시각화 (추가 개발 가능)
+
+#### 시간대별 패턴 분석 ✅ API 연동 완료
 민원 발생 시간대와 생활인구 패턴을 분석하여 최적의 관리 시점을 제안합니다.
 
-#### 개입 권고사항
+- 시간대별 패턴 차트
+- 요일별 패턴 분석
+- 피크 시간대 식별
+
+#### 개입 권고사항 ✅ API 연동 완료
 데이터 기반 개입 유형 및 예상 효과를 분석합니다.
 
 - 개입 유형별 권고사항 (구조 개선, 정기 관리 강화, 모니터링 강화 등)
@@ -97,7 +180,7 @@ npm run build
 - 권장 시간대 및 요일 패턴 제시
 - 관련 신호 표시 (인간, 지리, 생활인구, 비둘기 신호)
 
-#### 개입 전후 효과 추적
+#### 개입 전후 효과 추적 ✅ API 연동 완료
 과거 개입 사례의 효과를 측정 및 검증합니다.
 
 - 개입 전후 편의성 지수 변화 추이 시각화
@@ -214,6 +297,28 @@ Urban Comfort Index는 Core 지표와 해석 레이어를 종합하여 계산됩
 ### 컴포넌트 구조
 각 컴포넌트는 자체 CSS 파일을 가지고 있으며, 디자인 시스템 변수를 활용합니다.
 
-### 데이터 구조
-현재는 모의 데이터(mock data)를 사용하고 있으며, 실제 API 연동 시 인터페이스 구조를 유지하여 쉽게 교체할 수 있습니다.
+### 데이터 구조 및 API 연동
+
+프론트엔드는 백엔드 API와 연동되어 있으며, 다음과 같은 구조로 동작합니다:
+
+1. **API 우선 사용**: 모든 컴포넌트는 먼저 백엔드 API에서 데이터를 조회합니다.
+2. **Fallback 메커니즘**: API 호출 실패 시 자동으로 더미데이터로 전환하여 UI가 정상 작동하도록 합니다.
+3. **에러 처리**: API 오류 시 사용자에게 명확한 에러 메시지를 표시합니다.
+4. **로딩 상태**: 데이터 로딩 중에는 적절한 로딩 표시를 제공합니다.
+
+### API 클라이언트 사용법
+
+```typescript
+import { apiClient, getTodayDateString } from '../utils/api'
+
+// API 호출 예시
+const date = getTodayDateString()
+const priorityQueue = await apiClient.getPriorityQueue({ date, top_n: 20 })
+const actionCards = await apiClient.getActionCards({ date })
+```
+
+### 추가 참고 문서
+
+- **백엔드 연동 상세 보고서**: `BACKEND_INTEGRATION_REPORT.md` 참조
+- **API 상태**: `API_STATUS.md` 참조 (백엔드 서버 상태 확인용)
 

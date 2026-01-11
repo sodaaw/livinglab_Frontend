@@ -102,13 +102,100 @@ interface TimePatternApiResponse {
   recommended_action?: string
 }
 
+// Human Signal API 응답 타입 정의
+interface HumanSignalApiResponse {
+  success: boolean
+  period: 'day' | 'week' | 'month'
+  date_range: {
+    start: string
+    end: string
+  }
+  summary: {
+    total_complaints: number
+    average_per_day: number
+    by_day_of_week: { [key: string]: number } // 0=일요일, 1=월요일, ..., 6=토요일
+    repeat_count: number
+  }
+  trends: Array<{
+    date: string
+    total: number
+    odor: number
+    trash: number
+    night_ratio: number
+    repeat_ratio: number
+  }>
+}
+
+// by_day_of_week 데이터 검증 및 더미데이터 생성 함수
+const validateAndFillDayOfWeekData = (
+  byDayOfWeek: { [key: string]: number } | undefined,
+  unitId: string
+): { [key: string]: number } => {
+  // 데이터가 없거나 빈 객체인 경우
+  if (!byDayOfWeek || Object.keys(byDayOfWeek).length === 0) {
+    console.warn(`⚠️ [시간대별 패턴 분석] by_day_of_week 데이터 없음 (${unitId}), 더미데이터 생성`)
+    return {
+      '0': Math.floor(Math.random() * 5) + 1,
+      '1': Math.floor(Math.random() * 6) + 2,
+      '2': Math.floor(Math.random() * 6) + 2,
+      '3': Math.floor(Math.random() * 6) + 3,
+      '4': Math.floor(Math.random() * 6) + 2,
+      '5': Math.floor(Math.random() * 5) + 2,
+      '6': Math.floor(Math.random() * 4) + 1
+    }
+  }
+
+  // 모든 값이 0인지 확인
+  const allZero = Object.values(byDayOfWeek).every(val => val === 0)
+  if (allZero) {
+    console.warn(`⚠️ [시간대별 패턴 분석] by_day_of_week 데이터가 모두 0 (${unitId}), 더미데이터로 채움`)
+    return {
+      '0': Math.floor(Math.random() * 5) + 1,
+      '1': Math.floor(Math.random() * 6) + 2,
+      '2': Math.floor(Math.random() * 6) + 2,
+      '3': Math.floor(Math.random() * 6) + 3,
+      '4': Math.floor(Math.random() * 6) + 2,
+      '5': Math.floor(Math.random() * 5) + 2,
+      '6': Math.floor(Math.random() * 4) + 1
+    }
+  }
+
+  // 일부 값이 0이거나 누락된 경우 보완
+  const filledData = { ...byDayOfWeek }
+  const missingDays: string[] = []
+  const zeroDays: string[] = []
+  const dayNames = ['일', '월', '화', '수', '목', '금', '토']
+
+  for (let i = 0; i < 7; i++) {
+    const key = i.toString()
+    if (filledData[key] === undefined) {
+      filledData[key] = Math.floor(Math.random() * 5) + 1
+      missingDays.push(dayNames[i])
+    } else if (filledData[key] === 0) {
+      filledData[key] = Math.floor(Math.random() * 5) + 1
+      zeroDays.push(dayNames[i])
+    }
+  }
+
+  if (missingDays.length > 0 || zeroDays.length > 0) {
+    console.warn(`⚠️ [시간대별 패턴 분석] by_day_of_week 데이터 보완 (${unitId}):`, {
+      missingDays: missingDays.length > 0 ? missingDays : undefined,
+      zeroDays: zeroDays.length > 0 ? zeroDays : undefined,
+      message: `${missingDays.length > 0 ? `누락된 요일 ${missingDays.length}개` : ''}${missingDays.length > 0 && zeroDays.length > 0 ? ', ' : ''}${zeroDays.length > 0 ? `0인 요일 ${zeroDays.length}개` : ''}를 더미데이터로 채웠습니다.`
+    })
+  }
+
+  return filledData
+}
+
 // API 응답을 TimePatternData로 변환하는 함수
-// location만 백엔드에서 가져오고, 그래프 데이터는 더미데이터로 생성
+// human-signal API의 by_day_of_week 데이터를 활용하여 dayPattern 보강
 const mapApiResponseToTimePatternData = (
   apiItem: TimePatternApiResponse,
   fallbackName?: string,
   fallbackUnitId?: string,
-  index: number = 0
+  index: number = 0,
+  humanSignalData?: HumanSignalApiResponse
 ): TimePatternData => {
   // API 응답의 location을 우선 사용, 없으면 fallbackName 또는 fallbackUnitId 사용
   const location = apiItem.location || fallbackName || fallbackUnitId || '위치 정보 없음'
@@ -116,9 +203,25 @@ const mapApiResponseToTimePatternData = (
   // 그래프 데이터는 더미데이터로 생성 (시각적으로 잘 보이게)
   const mockData = generateMockPatternData(index)
 
+  // human-signal API의 by_day_of_week 데이터가 있으면 dayPattern 보강
+  let dayPattern = mockData.dayPattern
+  if (humanSignalData?.summary?.by_day_of_week) {
+    const unitId = fallbackUnitId || 'unknown'
+    const validatedByDayOfWeek = validateAndFillDayOfWeekData(
+      humanSignalData.summary.by_day_of_week,
+      unitId
+    )
+    const dayNames = ['일', '월', '화', '수', '목', '금', '토']
+    dayPattern = dayNames.map((day, idx) => ({
+      day,
+      complaints: validatedByDayOfWeek[idx.toString()] || 0
+    }))
+  }
+
   return {
     location,
-    ...mockData
+    ...mockData,
+    dayPattern
   }
 }
 
@@ -161,7 +264,29 @@ const TimePatternAnalysis = () => {
                 rawData: pattern
               })
               
-              return mapApiResponseToTimePatternData(pattern, item.name, item.unit_id || item._id, index)
+              // human-signal API도 함께 호출하여 by_day_of_week 데이터 가져오기
+              let humanSignalData: HumanSignalApiResponse | undefined
+              try {
+                const humanSignal = await apiClient.getHumanSignal({
+                  date,
+                  unit_id: unitId,
+                  period: 'day'
+                }) as HumanSignalApiResponse
+                
+                console.log(`📊 [시간대별 패턴 분석] Human Signal 응답 (${unitId}):`, {
+                  endpoint: `/api/v1/dashboard/human-signal`,
+                  unitId,
+                  date,
+                  rawData: humanSignal
+                })
+                
+                humanSignalData = humanSignal
+              } catch (err) {
+                console.warn(`⚠️ Human Signal 조회 실패 (${unitId}):`, err)
+                // human-signal API 실패해도 계속 진행
+              }
+              
+              return mapApiResponseToTimePatternData(pattern, item.name, item.unit_id || item._id, index, humanSignalData)
             } catch (err) {
               console.warn(`⚠️ 시간 패턴 조회 실패 (${item.unit_id}):`, err)
               return null

@@ -64,18 +64,25 @@ const ReportingGuide = () => {
                   <li>가능하면 사진 첨부 (선택사항)</li>
                 </ul>
               </div>
-              <button className="action-button primary">
+              <a 
+                href="https://minwon.seoul.go.kr/icisuser/main.do" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="action-button primary"
+              >
                 민원 포털로 이동
-              </button>
+              </a>
             </div>
 
-            <div className="action-card">
+            <div className="action-card phone-card">
               <h3 className="action-title">전화 신고</h3>
               <p className="action-description">
                 긴급한 상황이나 즉시 조치가 필요한 경우 전화로 신고하세요.
               </p>
-              <div className="phone-number">120 다산콜센터</div>
-              <div className="phone-hours">운영시간: 24시간</div>
+              <div className="phone-info">
+                <div className="phone-number">120 다산콜센터</div>
+                <div className="phone-hours">운영시간: 24시간</div>
+              </div>
             </div>
         </div>
 

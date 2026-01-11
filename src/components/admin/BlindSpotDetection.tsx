@@ -1,4 +1,6 @@
+import { useState, useEffect } from 'react'
 import LocationMap from './LocationMap'
+import { apiClient, getTodayDateString } from '../../utils/api'
 import './BlindSpotDetection.css'
 
 interface BlindSpot {
@@ -65,7 +67,94 @@ const mockBlindSpots: BlindSpot[] = [
   }
 ]
 
+// API 응답 타입 정의 (추정 - 실제 API 응답 구조에 맞게 조정 필요)
+interface BlindSpotApiResponse {
+  unit_id: string
+  name?: string
+  risk_level: 'high' | 'medium' | 'low'
+  detection_reason?: string
+  signals?: {
+    human?: { value: number; status: 'low' | 'normal' | 'high' }
+    geo?: { value: number; status: 'low' | 'normal' | 'high' }
+    population?: { value: number; status: 'low' | 'normal' | 'high' }
+    pigeon?: { detected: boolean; intensity: 'high' | 'medium' | 'low' | null }
+  }
+  recommended_action?: string
+  lat?: number
+  lng?: number
+}
+
+// API 응답을 BlindSpot으로 변환하는 함수
+const mapApiResponseToBlindSpot = (apiItem: BlindSpotApiResponse, index: number): BlindSpot => {
+  return {
+    id: apiItem.unit_id || `bs-${index}`,
+    location: apiItem.name || apiItem.unit_id || '위치 정보 없음',
+    lat: apiItem.lat || 37.5665, // 기본값
+    lng: apiItem.lng || 126.978,
+    riskLevel: apiItem.risk_level || 'medium',
+    detectionReason: apiItem.detection_reason || '신호 간 불일치 감지',
+    signals: {
+      human: apiItem.signals?.human || { value: 0, status: 'low' },
+      geo: apiItem.signals?.geo || { value: 0, status: 'normal' },
+      population: apiItem.signals?.population || { value: 0, status: 'normal' },
+      pigeon: apiItem.signals?.pigeon,
+    },
+    recommendedAction: apiItem.recommended_action || '추가 조사 필요',
+  }
+}
+
 const BlindSpotDetection = () => {
+  const [blindSpots, setBlindSpots] = useState<BlindSpot[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // API에서 데이터 가져오기
+  useEffect(() => {
+    const fetchBlindSpots = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const date = getTodayDateString()
+        const response = await apiClient.getBlindSpots({ date }) as BlindSpotApiResponse[]
+        
+        // 백엔드에서 받은 원본 데이터 로그 출력
+        console.log('🔍 [사각지대 탐지] 백엔드 API 응답:', {
+          endpoint: '/api/v1/dashboard/blind-spots',
+          date,
+          responseCount: Array.isArray(response) ? response.length : 0,
+          rawData: response,
+          sampleItem: Array.isArray(response) && response.length > 0 ? response[0] : null
+        })
+        
+        if (Array.isArray(response) && response.length > 0) {
+          const mappedBlindSpots = response.map((item, index) => mapApiResponseToBlindSpot(item, index))
+          
+          // 매핑된 데이터 로그 출력
+          console.log('✅ [사각지대 탐지] 매핑 완료:', {
+            mappedCount: mappedBlindSpots.length,
+            mappedBlindSpots: mappedBlindSpots,
+            sampleMappedItem: mappedBlindSpots[0] || null
+          })
+          
+          setBlindSpots(mappedBlindSpots)
+        } else {
+          // API 응답이 비어있거나 형식이 다를 경우 더미데이터 사용
+          console.warn('⚠️ API 응답이 비어있거나 형식이 다릅니다. 더미데이터를 사용합니다.')
+          setBlindSpots(mockBlindSpots)
+        }
+      } catch (err) {
+        console.error('❌ 사각지대 탐지 데이터 로딩 실패:', err)
+        setError(err instanceof Error ? err.message : '데이터를 불러오는 중 오류가 발생했습니다.')
+        // 에러 발생 시 더미데이터로 fallback
+        setBlindSpots(mockBlindSpots)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchBlindSpots()
+  }, [])
+
   const getRiskLabel = (risk: string) => {
     switch (risk) {
       case 'high':
@@ -105,7 +194,23 @@ const BlindSpotDetection = () => {
     }
   }
 
-  const mapLocations = mockBlindSpots.map((spot) => ({
+  if (loading) {
+    return (
+      <div className="blindspot-detection">
+        <div className="section-header">
+          <h2 className="heading-2">사각지대 탐지</h2>
+          <p className="body-small text-secondary mt-sm">
+            신호 간 불일치를 분석하여 행정 데이터가 놓치는 사각지대를 탐지합니다
+          </p>
+        </div>
+        <div className="loading-state">
+          <p className="body-medium text-secondary">데이터를 불러오는 중...</p>
+        </div>
+      </div>
+    )
+  }
+
+  const mapLocations = blindSpots.map((spot) => ({
     id: spot.id,
     location: spot.location,
     lat: spot.lat,
@@ -131,8 +236,16 @@ const BlindSpotDetection = () => {
         />
       </div>
 
+      {error && (
+        <div className="error-state" style={{ padding: '16px', marginBottom: '16px', backgroundColor: 'var(--gray-100)', borderRadius: '4px' }}>
+          <p className="body-small" style={{ color: 'var(--chateau-green-600)' }}>
+            ⚠️ {error} (더미데이터로 표시 중)
+          </p>
+        </div>
+      )}
+
       <div className="blindspot-list">
-        {mockBlindSpots.map((spot) => (
+        {blindSpots.map((spot) => (
           <div key={spot.id} className="blindspot-item">
             <div className="blindspot-header">
               <div>

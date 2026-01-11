@@ -84,6 +84,18 @@
   border-radius: 8px;
   cursor: pointer;
   transition: all var(--transition-base);
+  animation: fadeInUp 0.3s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .queue-card:hover {
@@ -145,6 +157,71 @@
 .queue-card-index {
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
+}
+
+/* 더보기/접기 버튼 컨테이너 */
+.queue-toggle-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-md);
+}
+
+.queue-toggle-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background-color: var(--bg-primary);
+  border: 1.5px solid var(--chateau-green-400);
+  border-radius: 8px;
+  color: var(--chateau-green-700);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  min-width: 140px;
+}
+
+.queue-toggle-button:hover {
+  background-color: var(--chateau-green-50);
+  border-color: var(--chateau-green-600);
+  color: var(--chateau-green-800);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+.queue-toggle-button:focus {
+  outline: 2px solid var(--chateau-green-400);
+  outline-offset: 2px;
+}
+
+.queue-toggle-button:active {
+  transform: translateY(0);
+}
+
+.queue-toggle-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.queue-toggle-icon.rotated {
+  transform: rotate(180deg);
+}
+
+.queue-toggle-text {
+  white-space: nowrap;
+}
+
+.queue-count-indicator {
+  font-size: var(--font-size-xs);
+  color: var(--text-tertiary);
+  font-weight: var(--font-weight-medium);
 }
 
 .queue-detail-view {
@@ -292,7 +369,6 @@
   flex-direction: column;
   gap: var(--spacing-md);
   padding-top: var(--spacing-sm);
-  border-top: 1px solid var(--border-subtle);
 }
 
 /* 신호 섹션들을 가로로 배치하는 컨테이너 */
@@ -720,6 +796,21 @@
 
   .time-pattern-chart {
     height: 80px;
+  }
+
+  .queue-toggle-container {
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-sm);
+  }
+
+  .queue-toggle-button {
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: var(--font-size-xs);
+    min-width: 120px;
+  }
+
+  .queue-count-indicator {
+    font-size: 10px;
   }
 }
 

@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react'
+import { apiClient, getTodayDateString } from '../../utils/api'
 import './ActionRecommendations.css'
 
 interface Recommendation {
@@ -107,7 +109,95 @@ const mockRecommendations: Recommendation[] = [
   }
 ]
 
+// API 응답 타입 정의
+interface ActionCardApiResponse {
+  card_id: string
+  title: string
+  recommended_actions: string[]
+  tags?: string[]
+  confidence?: number
+  unit_id?: string
+  date?: string
+}
+
+// API 응답을 Recommendation으로 변환하는 함수
+const mapApiResponseToRecommendation = (apiItem: ActionCardApiResponse, index: number): Recommendation => {
+  // urgency는 tags에서 추론 (immediate, short-term, medium-term)
+  let urgency: 'immediate' | 'short-term' | 'medium-term' = 'medium-term'
+  if (apiItem.tags?.some(tag => tag.includes('immediate') || tag.includes('urgent'))) {
+    urgency = 'immediate'
+  } else if (apiItem.tags?.some(tag => tag.includes('short'))) {
+    urgency = 'short-term'
+  }
+
+  return {
+    id: apiItem.card_id || `rec-${index}`,
+    location: apiItem.unit_id || '위치 정보 없음',
+    interventionType: apiItem.recommended_actions?.[0] || '개입 권고',
+    description: apiItem.title || apiItem.recommended_actions?.join(', ') || '',
+    expectedImpact: `신뢰도: ${((apiItem.confidence || 0.5) * 100).toFixed(0)}%`,
+    urgency,
+    relatedSignals: {
+      human: apiItem.tags?.some(tag => tag.includes('human') || tag.includes('complaint')) || false,
+      geo: apiItem.tags?.some(tag => tag.includes('geo') || tag.includes('structure')) || false,
+      population: apiItem.tags?.some(tag => tag.includes('population')) || false,
+      pigeon: apiItem.tags?.some(tag => tag.includes('pigeon')) || false,
+    },
+  }
+}
+
 const ActionRecommendations = () => {
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // API에서 데이터 가져오기
+  useEffect(() => {
+    const fetchActionCards = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const date = getTodayDateString()
+        const response = await apiClient.getActionCards({ date }) as ActionCardApiResponse[]
+        
+        // 백엔드에서 받은 원본 데이터 로그 출력
+        console.log('📋 [개입 권고사항] 백엔드 API 응답:', {
+          endpoint: '/api/v1/action-cards',
+          date,
+          responseCount: Array.isArray(response) ? response.length : 0,
+          rawData: response,
+          sampleItem: Array.isArray(response) && response.length > 0 ? response[0] : null
+        })
+        
+        if (Array.isArray(response) && response.length > 0) {
+          const mappedRecommendations = response.map((item, index) => mapApiResponseToRecommendation(item, index))
+          
+          // 매핑된 데이터 로그 출력
+          console.log('✅ [개입 권고사항] 매핑 완료:', {
+            mappedCount: mappedRecommendations.length,
+            mappedRecommendations: mappedRecommendations,
+            sampleMappedItem: mappedRecommendations[0] || null
+          })
+          
+          setRecommendations(mappedRecommendations)
+        } else {
+          // API 응답이 비어있거나 형식이 다를 경우 더미데이터 사용
+          console.warn('⚠️ API 응답이 비어있거나 형식이 다릅니다. 더미데이터를 사용합니다.')
+          setRecommendations(mockRecommendations)
+        }
+      } catch (err) {
+        console.error('❌ 개입 권고사항 데이터 로딩 실패:', err)
+        setError(err instanceof Error ? err.message : '데이터를 불러오는 중 오류가 발생했습니다.')
+        // 에러 발생 시 더미데이터로 fallback
+        setRecommendations(mockRecommendations)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchActionCards()
+  }, [])
+
   const getUrgencyLabel = (urgency: string) => {
     switch (urgency) {
       case 'immediate':
@@ -119,6 +209,31 @@ const ActionRecommendations = () => {
       default:
         return urgency
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="action-recommendations">
+        <div className="section-header recommendation-section-header">
+          <div className="section-header-content">
+            <div className="section-header-icon recommendation-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+              </svg>
+            </div>
+            <div>
+              <h2 className="heading-2 recommendation-heading">개입 권고사항</h2>
+              <p className="body-small text-secondary mt-sm">
+                데이터 기반 개입 유형 및 예상 효과 분석
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="loading-state">
+          <p className="body-medium text-secondary">데이터를 불러오는 중...</p>
+        </div>
+      </div>
+    )
   }
 
 
@@ -143,8 +258,16 @@ const ActionRecommendations = () => {
         </div>
       </div>
 
+      {error && (
+        <div className="error-state" style={{ padding: '16px', marginBottom: '16px', backgroundColor: 'var(--gray-100)', borderRadius: '4px' }}>
+          <p className="body-small" style={{ color: 'var(--chateau-green-600)' }}>
+            ⚠️ {error} (더미데이터로 표시 중)
+          </p>
+        </div>
+      )}
+
       <div className="recommendations-grid">
-        {mockRecommendations.map((rec) => (
+        {recommendations.map((rec) => (
           <div key={rec.id} className="recommendation-card">
             <div className="recommendation-header">
               <div className="recommendation-meta">

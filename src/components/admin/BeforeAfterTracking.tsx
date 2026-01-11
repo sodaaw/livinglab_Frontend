@@ -1,4 +1,6 @@
+import { useState, useEffect } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { apiClient, getTodayDateString } from '../../utils/api'
 import './BeforeAfterTracking.css'
 
 interface TrackingData {
@@ -61,13 +63,160 @@ const mockTrackingData: TrackingData[] = [
   }
 ]
 
+// API 응답 타입 정의 (추정 - 실제 API 응답 구조에 맞게 조정 필요)
+interface InterventionApiResponse {
+  intervention_id: string
+  unit_id?: string
+  name?: string
+  intervention_date?: string
+  intervention_type?: string
+  status?: 'active' | 'completed'
+}
+
+interface InterventionEffectApiResponse {
+  baseline_data?: Array<{ date: string; uci_score: number }>
+  followup_data?: Array<{ date: string; uci_score: number }>
+  improvement?: number
+}
+
+// API 응답을 TrackingData로 변환하는 함수
+const mapApiResponseToTrackingData = async (
+  intervention: InterventionApiResponse
+): Promise<TrackingData | null> => {
+  try {
+    // 개입 효과 데이터 조회
+    const effect = await apiClient.getInterventionEffect(
+      intervention.intervention_id,
+      { baseline_weeks: 4, followup_weeks: 4 }
+    ) as InterventionEffectApiResponse
+    
+    // 개입 효과 원본 데이터 로그 출력
+    console.log(`📈 [개입 전후 효과 추적] 개입 효과 원본 응답 (${intervention.intervention_id}):`, {
+      endpoint: `/api/v1/dashboard/interventions/${intervention.intervention_id}/effect`,
+      interventionId: intervention.intervention_id,
+      rawEffectData: effect
+    })
+
+    const beforeData = effect.baseline_data?.map(d => ({
+      date: d.date.substring(0, 7), // YYYY-MM 형식으로 변환
+      index: Math.round(d.uci_score),
+    })) || []
+
+    const afterData = effect.followup_data?.map(d => ({
+      date: d.date.substring(0, 7),
+      index: Math.round(d.uci_score),
+    })) || []
+
+    return {
+      location: intervention.name || intervention.unit_id || '위치 정보 없음',
+      interventionDate: intervention.intervention_date || '',
+      interventionType: intervention.intervention_type || '개입',
+      beforeData,
+      afterData,
+      improvement: effect.improvement || 0,
+    }
+  } catch (err) {
+    console.warn(`⚠️ 개입 효과 조회 실패 (${intervention.intervention_id}):`, err)
+    return null
+  }
+}
+
 const BeforeAfterTracking = () => {
+  const [trackingData, setTrackingData] = useState<TrackingData[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // API에서 데이터 가져오기
+  useEffect(() => {
+    const fetchInterventions = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        
+        // 완료된 개입 사업 조회
+        const interventions = await apiClient.getInterventions({ status: 'completed' }) as InterventionApiResponse[]
+        
+        // 개입 사업 목록 응답 로그 출력
+        console.log('📋 [개입 전후 효과 추적] 개입 사업 목록 응답:', {
+          endpoint: '/api/v1/dashboard/interventions',
+          status: 'completed',
+          interventionCount: Array.isArray(interventions) ? interventions.length : 0,
+          rawData: interventions,
+          sampleItem: Array.isArray(interventions) && interventions.length > 0 ? interventions[0] : null
+        })
+        
+        if (Array.isArray(interventions) && interventions.length > 0) {
+          // 상위 3개 개입만 조회 (성능 고려)
+          const topInterventions = interventions.slice(0, 3)
+          const trackingPromises = topInterventions.map(async (intervention) => {
+            const result = await mapApiResponseToTrackingData(intervention)
+            
+            // 각 개입별 효과 데이터 로그 출력
+            if (result) {
+              console.log(`📊 [개입 전후 효과 추적] 개입 효과 응답 (${intervention.intervention_id}):`, {
+                endpoint: `/api/v1/dashboard/interventions/${intervention.intervention_id}/effect`,
+                interventionId: intervention.intervention_id,
+                effectData: result
+              })
+            }
+            
+            return result
+          })
+          const trackingResults = (await Promise.all(trackingPromises)).filter((t): t is TrackingData => t !== null)
+          
+          // 매핑된 추적 데이터 로그 출력
+          console.log('✅ [개입 전후 효과 추적] 매핑 완료:', {
+            trackingCount: trackingResults.length,
+            trackingResults: trackingResults,
+            sampleTrackingItem: trackingResults[0] || null
+          })
+          
+          if (trackingResults.length > 0) {
+            setTrackingData(trackingResults)
+          } else {
+            // API 응답이 비어있거나 형식이 다를 경우 더미데이터 사용
+            console.warn('⚠️ API 응답이 비어있거나 형식이 다릅니다. 더미데이터를 사용합니다.')
+            setTrackingData(mockTrackingData)
+          }
+        } else {
+          // 개입 사업이 없으면 더미데이터 사용
+          setTrackingData(mockTrackingData)
+        }
+      } catch (err) {
+        console.error('❌ 개입 전후 효과 추적 데이터 로딩 실패:', err)
+        setError(err instanceof Error ? err.message : '데이터를 불러오는 중 오류가 발생했습니다.')
+        // 에러 발생 시 더미데이터로 fallback
+        setTrackingData(mockTrackingData)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchInterventions()
+  }, [])
+
   const formatChartData = (data: TrackingData) => {
     const combined = [
       ...data.beforeData.map((d) => ({ ...d, type: '개입 전' })),
       ...data.afterData.map((d) => ({ ...d, type: '개입 후' }))
     ]
     return combined
+  }
+
+  if (loading) {
+    return (
+      <div className="before-after-tracking">
+        <div className="section-header">
+          <h2 className="heading-2">개입 전후 효과 추적</h2>
+          <p className="body-small text-secondary mt-sm">
+            과거 개입 사례의 효과 측정 및 검증 결과
+          </p>
+        </div>
+        <div className="loading-state">
+          <p className="body-medium text-secondary">데이터를 불러오는 중...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -79,8 +228,16 @@ const BeforeAfterTracking = () => {
         </p>
       </div>
 
+      {error && (
+        <div className="error-state" style={{ padding: '16px', marginBottom: '16px', backgroundColor: 'var(--gray-100)', borderRadius: '4px' }}>
+          <p className="body-small" style={{ color: 'var(--chateau-green-600)' }}>
+            ⚠️ {error} (더미데이터로 표시 중)
+          </p>
+        </div>
+      )}
+
       <div className="tracking-list">
-        {mockTrackingData.map((data, index) => (
+        {trackingData.map((data, index) => (
           <div key={index} className="tracking-item">
             <div className="tracking-header">
               <div>

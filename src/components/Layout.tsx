@@ -24,7 +24,7 @@ const Layout = () => {
                 to="/public"
                 className={`nav-link ${!isAdmin ? 'active' : ''}`}
               >
-                시민용 공개 뷰
+                시민용 대시보드
               </Link>
             </nav>
           </div>

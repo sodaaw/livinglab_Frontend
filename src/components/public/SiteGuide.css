@@ -119,6 +119,33 @@
   line-height: var(--line-height-relaxed);
 }
 
+.guide-description-uci-link {
+  display: inline;
+  padding: 2px 4px;
+  margin: 0 2px;
+  font-size: inherit;
+  font-family: inherit;
+  color: var(--chateau-green-700);
+  background-color: var(--chateau-green-50);
+  border: none;
+  border-bottom: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+}
+
+.guide-description-uci-link:hover {
+  color: var(--chateau-green-800);
+  background-color: var(--chateau-green-100);
+  border-bottom-color: var(--chateau-green-400);
+}
+
+.guide-description-uci-link:active {
+  transform: scale(0.98);
+}
+
 .guide-steps {
   position: relative;
   display: flex;

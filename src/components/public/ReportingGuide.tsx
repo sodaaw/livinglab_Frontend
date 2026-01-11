@@ -10,19 +10,17 @@ const guideSteps: GuideStep[] = [
   {
     step: 1,
     title: '위치 선택',
-    description: '문제가 발생한 지역의 대략적인 위치를 선택하세요.'
+    description: '정확한 주소가 아니어도 괜찮습니다. 대략적인 위치만 선택해주세요.'
   },
   {
     step: 2,
     title: '상황 설명',
-    description:
-      '발견한 문제에 대해 간단히 설명해주세요. 구체적인 날짜와 시간 정보가 있으면 도움이 됩니다.'
+    description: '불편을 느낀 상황을 편하게 적어주세요. 짧아도 충분합니다.'
   },
   {
     step: 3,
     title: '제출',
-    description:
-      '제출하시면 담당 부서에서 검토 후 적절한 조치를 취하겠습니다.'
+    description: '제출하시면 담당 부서에서 검토 후 적절한 조치를 취하겠습니다.'
   }
 ]
 
@@ -32,7 +30,7 @@ const ReportingGuide = () => {
       <div className="section-header">
         <h2 className="heading-2">민원 신고 안내</h2>
         <p className="body-small text-secondary mt-sm">
-          도시 편의성과 관련된 문제를 발견하셨나요? 간단한 절차로 신고해주세요.
+          작은 불편도 도시를 더 나아지게 만드는 중요한 정보입니다.
         </p>
       </div>
 
@@ -56,12 +54,12 @@ const ReportingGuide = () => {
                 공식 민원 포털을 통해 24시간 신고가 가능합니다.
               </p>
               <div className="reporting-tips">
-                <strong>정확한 신고를 위한 팁:</strong>
+                <strong>참고하시면 좋은 정보:</strong>
                 <ul>
-                  <li>문제 발생 위치의 대략적인 주소 또는 건물명</li>
-                  <li>발견한 날짜와 시간</li>
-                  <li>문제의 구체적인 내용 (악취, 쓰레기, 불법투기 등)</li>
-                  <li>가능하면 사진 첨부 (선택사항)</li>
+                  <li>대략적인 위치 또는 건물명</li>
+                  <li>발견한 날짜와 시간 (가능하면)</li>
+                  <li>불편했던 상황 (악취, 쓰레기 등)</li>
+                  <li>사진 첨부는 선택사항입니다</li>
                 </ul>
               </div>
               <a 
@@ -110,11 +108,10 @@ const ReportingGuide = () => {
             </svg>
           </div>
           <div className="note-content">
-            <strong>참고사항</strong>
+            <strong>안심하고 신고해주세요</strong>
             <p>
-              신고하신 내용은 데이터 분석에 활용되어 도시 편의성 개선에
-              기여합니다. 개인정보는 보호되며, 신고 지역의 정확한 주소는
-              공개되지 않습니다.
+              신고 내용은 통계 분석에만 활용되며, 개인을 식별할 수 있는 정보는 공개되지 않습니다.
+              특정 지역이나 개인이 불이익을 받지 않도록 보호됩니다.
             </p>
           </div>
         </div>

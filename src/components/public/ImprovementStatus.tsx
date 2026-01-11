@@ -100,12 +100,30 @@ const ImprovementStatus = () => {
     }
   }
 
+  const getStatusExplanation = (status: string) => {
+    switch (status) {
+      case 'improving':
+        return '최근 관리와 개선이 진행되며, 상황이 나아지고 있는 상태입니다.'
+      case 'stable':
+        return '현재까지 큰 문제 신호 없이 유지되고 있습니다.'
+      case 'monitoring':
+        return '변화 가능성이 있어 지켜보고 있는 단계입니다.'
+      case 'completed':
+        return '개선 작업이 완료되어 효과를 확인하고 있습니다.'
+      default:
+        return ''
+    }
+  }
+
   return (
     <div className="improvement-status">
       <div className="section-header">
         <h2 className="heading-2">개선 현황</h2>
         <p className="body-small text-secondary mt-sm">
-          진행 중인 도시 편의성 개선 사업 현황
+          이 사업들은 시민 불편을 줄이기 위해 실제로 진행 중인 개선 사례입니다.
+        </p>
+        <p className="body-small text-secondary mt-xs">
+          진행률은 참고용이며, 완료 후 변화는 지표를 통해 확인할 수 있습니다.
         </p>
       </div>
 
@@ -123,6 +141,9 @@ const ImprovementStatus = () => {
             </div>
 
             <p className="improvement-description">{item.description}</p>
+            <p className="status-explanation" style={{ fontSize: 'var(--font-size-xs)', color: 'var(--text-secondary)', fontStyle: 'italic', marginTop: 'var(--spacing-xs)' }}>
+              {getStatusExplanation(item.status)}
+            </p>
 
             <div className="improvement-progress">
               <div className="progress-header">

@@ -1,0 +1,230 @@
+.uci-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--spacing-xl);
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.uci-modal-content {
+  background-color: var(--bg-primary);
+  border-radius: 12px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  animation: slideUp 0.2s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.uci-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-xl);
+  border-bottom: 1px solid var(--border-subtle);
+  position: sticky;
+  top: 0;
+  background-color: var(--bg-primary);
+  z-index: 10;
+}
+
+.uci-modal-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  letter-spacing: -1px;
+  margin: 0;
+}
+
+.uci-modal-close {
+  background: none;
+  border: none;
+  font-size: var(--font-size-3xl);
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition-base);
+  line-height: 1;
+}
+
+.uci-modal-close:hover {
+  color: var(--text-primary);
+}
+
+.uci-modal-body {
+  padding: var(--spacing-xl);
+}
+
+.uci-section {
+  margin-bottom: var(--spacing-xl);
+}
+
+.uci-section:last-child {
+  margin-bottom: 0;
+}
+
+.uci-section-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-md) 0;
+  letter-spacing: -0.5px;
+}
+
+.uci-section-text {
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-md) 0;
+}
+
+.uci-formula-container {
+  margin: var(--spacing-lg) 0;
+  padding: var(--spacing-lg);
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+}
+
+.uci-formula {
+  text-align: center;
+}
+
+.uci-formula code {
+  font-size: var(--font-size-base);
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  color: var(--chateau-green-700);
+  background: transparent;
+  padding: 0;
+}
+
+.uci-factors {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+}
+
+.uci-factor-item {
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  color: var(--text-primary);
+  padding-left: var(--spacing-md);
+  position: relative;
+}
+
+.uci-factor-item::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--chateau-green-600);
+  font-weight: bold;
+}
+
+.uci-factor-item strong {
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.uci-factors-public {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-lg);
+}
+
+.uci-factor-item-public {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+}
+
+.uci-factor-icon {
+  font-size: var(--font-size-xl);
+  flex-shrink: 0;
+}
+
+.uci-factor-content {
+  flex: 1;
+}
+
+.uci-factor-content strong {
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.uci-note {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-sm) 0;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: var(--spacing-md);
+}
+
+/* 모바일 대응 */
+@media (max-width: 768px) {
+  .uci-modal-overlay {
+    padding: var(--spacing-md);
+  }
+
+  .uci-modal-content {
+    max-height: 95vh;
+  }
+
+  .uci-modal-header {
+    padding: var(--spacing-lg);
+  }
+
+  .uci-modal-body {
+    padding: var(--spacing-lg);
+  }
+
+  .uci-modal-title {
+    font-size: var(--font-size-xl);
+  }
+
+  .uci-formula code {
+    font-size: var(--font-size-sm);
+    word-break: break-all;
+  }
+}
+

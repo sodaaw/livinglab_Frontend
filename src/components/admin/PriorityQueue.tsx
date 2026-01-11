@@ -893,14 +893,14 @@ const PriorityQueue = () => {
             </svg>
           </div>
           <div>
-            <h2 className="heading-2 priority-heading">우선순위 검사 대기열</h2>
+            <h2 className="heading-2 priority-heading">우선 검토 대상 지역 목록</h2>
             <p className="body-small text-secondary mt-sm">
-              도시 편의성 지수와 신호 분석을 기반으로 한 순위별 검사 목록
+              도시 편의성 지수와 신호 분석을 바탕으로 우선 확인이 필요한 지역입니다
             </p>
           </div>
         </div>
         <div className="section-header-badge priority-badge-header">
-          <span className="badge-label">우선 처리 필요</span>
+          <span className="badge-label">우선 검토 필요</span>
         </div>
       </div>
 
@@ -930,7 +930,7 @@ const PriorityQueue = () => {
                     <span className={`priority-badge priority-${item.priority}`}>
                       {getPriorityLabel(item.priority)}
                     </span>
-                    <span className="queue-card-index">지수: {item.comfortIndex}</span>
+                    <span className="queue-card-index">도시 편의성 지수: {item.comfortIndex}</span>
                   </div>
                 </div>
               </div>
@@ -981,9 +981,7 @@ const PriorityQueue = () => {
               <h3 className="heading-4">{selectedItem.location}</h3>
             </div>
             <div className="queue-item-badges">
-              <span
-                className={`priority-badge priority-${selectedItem.priority}`}
-              >
+              <span className={`priority-badge priority-${selectedItem.priority}`}>
                 {getPriorityLabel(selectedItem.priority)}
               </span>
               <span 
@@ -991,11 +989,11 @@ const PriorityQueue = () => {
                 onClick={() => handleIndexClick(selectedItem)}
                 title="지수 계산 근거 보기"
               >
-                편의성 지수: {selectedItem.comfortIndex}
+                도시 편의성 지수: {selectedItem.comfortIndex}
               </span>
               {selectedItem.uciGrade && (
                 <span className="index-badge" title="편의성 지수 등급" style={{ color: getGradeColor(selectedItem.uciGrade) }}>
-                  등급: {selectedItem.uciGrade}
+                  종합 등급: {selectedItem.uciGrade}
                 </span>
               )}
               {selectedItem.expertValidation?.verified && (
@@ -1015,7 +1013,10 @@ const PriorityQueue = () => {
             <div className="priority-confounders-row">
               {selectedItem.priorityReason && (
                 <div className="detail-group priority-reason">
-                  <h4 className="detail-label">우선순위 결정 근거</h4>
+                  <h4 className="detail-label">이 지역이 우선 검토 대상인 이유</h4>
+                  <p className="priority-summary" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-secondary)', marginBottom: 'var(--spacing-xs)' }}>
+                    최근 4주간의 신호 변화를 기준으로 분석했습니다
+                  </p>
                   <p className="priority-summary">{selectedItem.priorityReason.summary}</p>
                   {selectedItem.priorityReason.keyDrivers && selectedItem.priorityReason.keyDrivers.length > 0 && (
                     <div className="key-drivers-list" style={{ marginTop: 'var(--spacing-sm)' }}>
@@ -1055,15 +1056,17 @@ const PriorityQueue = () => {
                   <div className="summary-stats">
                     <div className="summary-stat-item">
                       <span className="summary-stat-label">전체 민원</span>
-                      <span className="summary-stat-value">{humanSignalData.summary.total_complaints}건</span>
+                      <span className="summary-stat-value">
+                        {humanSignalData.summary.total_complaints}건 · 최근 추세: {getTrendLabel(selectedItem.humanSignals.trend)}
+                      </span>
                     </div>
                     <div className="summary-stat-item">
-                      <span className="summary-stat-label">일평균</span>
+                      <span className="summary-stat-label">일평균 민원</span>
                       <span className="summary-stat-value">{humanSignalData.summary.average_per_day.toFixed(1)}건</span>
                     </div>
                     <div className="summary-stat-item">
                       <span className="summary-stat-label">재발 민원</span>
-                      <span className="summary-stat-value">{humanSignalData.summary.repeat_count}건</span>
+                      <span className="summary-stat-value">{humanSignalData.summary.repeat_count}건 (반복 발생)</span>
                     </div>
                     {selectedItem.humanSignals.recurrence > 0 && (
                       <div className="summary-stat-item">
@@ -1101,7 +1104,7 @@ const PriorityQueue = () => {
             <div className="signals-container">
               <div className="detail-group">
                 <h4 className="detail-label">
-                  인간 신호
+                  시민 체감 신호
                   {selectedItem.dataSource?.human && (
                     <span className="data-source-badge" title={`출처: ${selectedItem.dataSource.human.source}, 신뢰도: ${selectedItem.dataSource.human.reliability}`}>
                       {selectedItem.dataSource.human.reliability === 'high' ? '✓' : '○'}
@@ -1123,10 +1126,10 @@ const PriorityQueue = () => {
                       {humanSignalData.trends.slice(0, 1).map((trend, idx) => (
                         <div key={idx} className="trend-compact-item">
                           <span className="detail-value" style={{ fontSize: 'var(--font-size-sm)' }}>
-                            악취: <strong>{trend.odor}건</strong> / 쓰레기: <strong>{trend.trash}건</strong>
+                            악취 <strong>{trend.odor}건</strong> · 쓰레기 <strong>{trend.trash}건</strong>
                           </span>
                           <span className="detail-value" style={{ fontSize: 'var(--font-size-sm)' }}>
-                            야간: <strong>{(trend.night_ratio * 100).toFixed(0)}%</strong> / 재발: <strong>{(trend.repeat_ratio * 100).toFixed(0)}%</strong>
+                            야간 발생 비율 <strong>{(trend.night_ratio * 100).toFixed(0)}%</strong> · 재발 비율 <strong>{(trend.repeat_ratio * 100).toFixed(0)}%</strong>
                           </span>
                         </div>
                       ))}
@@ -1137,7 +1140,7 @@ const PriorityQueue = () => {
 
               <div className="detail-group">
                 <h4 className="detail-label">
-                  지리 신호
+                  지역 환경 특성
                   {selectedItem.dataSource?.geo && (
                     <span className="data-source-badge" title={`출처: ${selectedItem.dataSource.geo.source}, 신뢰도: ${selectedItem.dataSource.geo.reliability}`}>
                       {selectedItem.dataSource.geo.reliability === 'high' ? '✓' : '○'}
@@ -1146,8 +1149,7 @@ const PriorityQueue = () => {
                 </h4>
                 <div className="detail-values">
                   <span className="detail-value">
-                    {selectedItem.geoSignals.alleyStructure && `${selectedItem.geoSignals.alleyStructure} / `}
-                    취약도 점수: <strong style={{ color: getVulnerabilityColor(selectedItem.geoSignals.vulnerabilityScore) }}>{selectedItem.geoSignals.vulnerabilityScore}/10</strong>
+                    구조적 취약도: <strong style={{ color: getVulnerabilityColor(selectedItem.geoSignals.vulnerabilityScore) }}>{selectedItem.geoSignals.alleyStructure || '보통'} ({selectedItem.geoSignals.vulnerabilityScore}/10)</strong>
                   </span>
                 </div>
               </div>

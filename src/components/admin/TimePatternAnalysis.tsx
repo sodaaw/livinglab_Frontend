@@ -46,8 +46,8 @@ const generateMockPatternData = (index: number = 0): Omit<TimePatternData, 'loca
       ],
       peakHours,
       recommendedAction: index === 0 
-        ? `주요 시간대 관리 필요 (${peakStart}, ${peakStart + 1}, ${peakStart + 2}, ${peakStart + 3}시)`
-        : `야간 집중 관리 필요 (${peakStart}-${peakEnd}시)`
+        ? `관리 집중 권장 시간대 (${peakStart}–${peakStart + 3}시)`
+        : `관리 집중 권장 시간대 (${peakStart}–${peakEnd}시)`
     }
   } else {
     // 저녁 피크 패턴 (19-21시)
@@ -76,7 +76,7 @@ const generateMockPatternData = (index: number = 0): Omit<TimePatternData, 'loca
         { day: '일', complaints: Math.floor(Math.random() * 2) + 1 }
       ],
       peakHours,
-      recommendedAction: '저녁 시간대 관리 강화 (19-21시)'
+      recommendedAction: '관리 집중 권장 시간대 (19–21시)'
     }
   }
 }
@@ -332,7 +332,7 @@ const TimePatternAnalysis = () => {
         <div className="section-header">
           <h2 className="heading-2">시간대별 패턴 분석</h2>
           <p className="body-small text-secondary mt-sm">
-            민원 발생 시간대와 생활인구 패턴을 분석하여 최적의 관리 시점을 제안합니다
+            민원 발생 시간대와 생활인구 패턴을 분석해, 효율적인 관리 시점을 도출합니다
           </p>
         </div>
         <div className="loading-state">
@@ -428,7 +428,7 @@ const TimePatternAnalysis = () => {
                   </ComposedChart>
                 </ResponsiveContainer>
                 <div className="peak-hours-indicator">
-                  <span className="peak-label">피크 시간대:</span>
+                  <span className="peak-label">민원 집중 시간대:</span>
                   <div className="peak-hours">
                     {data.peakHours.map(hour => (
                       <span key={hour} className="peak-hour-badge">{hour}시</span>

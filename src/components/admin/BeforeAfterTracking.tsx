@@ -209,7 +209,7 @@ const BeforeAfterTracking = () => {
         <div className="section-header">
           <h2 className="heading-2">개입 전후 효과 추적</h2>
           <p className="body-small text-secondary mt-sm">
-            과거 개입 사례의 효과 측정 및 검증 결과
+            과거 개입 사례를 바탕으로, 개입 효과의 변화 흐름을 확인할 수 있습니다
           </p>
         </div>
         <div className="loading-state">
@@ -224,7 +224,7 @@ const BeforeAfterTracking = () => {
       <div className="section-header">
         <h2 className="heading-2">개입 전후 효과 추적</h2>
         <p className="body-small text-secondary mt-sm">
-          과거 개입 사례의 효과 측정 및 검증 결과
+          과거 개입 사례를 바탕으로, 개입 효과의 변화 흐름을 확인할 수 있습니다
         </p>
       </div>
 
@@ -252,7 +252,7 @@ const BeforeAfterTracking = () => {
                 </div>
               </div>
               <div className="improvement-indicator">
-                <span className="improvement-label">개선 효과</span>
+                <span className="improvement-label">개입 이후 변화</span>
                 <span className="improvement-value">
                   +{data.improvement}점
                 </span>

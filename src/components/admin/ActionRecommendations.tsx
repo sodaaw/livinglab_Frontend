@@ -34,8 +34,8 @@ const mockRecommendations: Recommendation[] = [
     location: '서울시 강남구 역삼동 123-45',
     interventionType: '구조적 개선',
     description:
-      '골목 구조 개선 및 환기 시스템 설치를 통한 근본적 환경 개선이 필요합니다. 좁은 골목 구조로 인한 공기 순환 문제가 주요 원인으로 분석됩니다.',
-    expectedImpact: '편의성 지수 30점 이상 향상 예상',
+      '골목 구조와 환기 문제로 인한 불편이 반복적으로 관측되어, 구조적 개선을 우선 검토할 필요가 있습니다.',
+    expectedImpact: '도시 편의성 지수 약 30점 이상 개선 예상',
     urgency: 'immediate',
     estimatedCost: '약 5,000만원',
     costEffectiveness: {
@@ -60,8 +60,8 @@ const mockRecommendations: Recommendation[] = [
     location: '서울시 마포구 상암동 67-89',
     interventionType: '정기 관리 강화',
     description:
-      '현재 구조는 양호하나 정기적인 청소 및 관리 주기를 단축하여 재발을 방지할 수 있습니다. 주민 인식 개선 캠페인 병행 권장.',
-    expectedImpact: '편의성 지수 15점 이상 향상 예상',
+      '현재 구조는 비교적 안정적이나, 관리 주기 단축을 통해 재발 가능성을 낮출 수 있습니다.',
+    expectedImpact: '도시 편의성 지수 약 15점 이상 개선 예상',
     urgency: 'short-term',
     estimatedCost: '약 500만원',
     costEffectiveness: {
@@ -86,7 +86,7 @@ const mockRecommendations: Recommendation[] = [
     location: '서울시 종로구 명륜동 12-34',
     interventionType: '모니터링 강화',
     description:
-      '현재 상태는 안정적이나 지속적인 모니터링을 통해 악화 징후를 조기에 감지하는 것이 중요합니다. 추가 개입은 불필요해 보입니다.',
+      '현재 상태는 안정적이나 지속적인 모니터링을 통해 악화 징후를 조기에 감지하는 것이 중요합니다. 현 시점에서는 추가 개입보다 지속적인 모니터링이 적절해 보입니다.',
     expectedImpact: '현 상태 유지 및 예방적 관리',
     urgency: 'medium-term',
     estimatedCost: '약 100만원',
@@ -247,14 +247,14 @@ const ActionRecommendations = () => {
             </svg>
           </div>
           <div>
-            <h2 className="heading-2 recommendation-heading">개입 권고사항</h2>
+            <h2 className="heading-2 recommendation-heading">개입 권고안 요약</h2>
             <p className="body-small text-secondary mt-sm">
-              데이터 기반 개입 유형 및 예상 효과 분석
+              데이터 분석을 바탕으로 검토가 필요한 개입 방안을 제안합니다
             </p>
           </div>
         </div>
         <div className="section-header-badge recommendation-badge-header">
-          <span className="badge-label">즉시 검토 권장</span>
+          <span className="badge-label">우선 검토 권장</span>
         </div>
       </div>
 
@@ -301,8 +301,8 @@ const ActionRecommendations = () => {
               {rec.costEffectiveness && (
                 <div className="cost-effectiveness-section">
                   <div className="ce-header">
-                    <span className="ce-title">비용-효과 분석</span>
-                    <span className="roi-badge">ROI {rec.costEffectiveness.roi}%</span>
+                    <span className="ce-title">비용 대비 효과 분석</span>
+                    <span className="roi-badge">예상 ROI {rec.costEffectiveness.roi}%</span>
                   </div>
                   <div className="ce-details">
                     <div className="ce-item">

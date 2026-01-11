@@ -332,31 +332,34 @@
 }
 
 .priority-badge {
-  padding: var(--spacing-xs) var(--spacing-md);
-  border-radius: 4px;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
+  display: inline-flex;
+  align-items: center;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: 12px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+  line-height: 1;
 }
 
-/* 시급도/우선순위에 따른 색상 */
+/* 우선순위에 따른 색상 - 그린 테마 중심 */
 .priority-high {
-  /* 높은 우선순위 → Red/Orange (시급도 높음) */
-  background-color: var(--color-severity-immediate-background);
-  color: var(--color-severity-immediate-text);
-  font-weight: var(--font-weight-semibold);
+  /* 높은 우선순위 → 진한 그린 계열 (강조) */
+  background-color: var(--chateau-green-600);
+  color: var(--white);
   box-shadow: var(--shadow-sm);
 }
 
 .priority-medium {
-  /* 중간 우선순위 → Orange/Yellow (시급도 중간) */
-  background-color: var(--color-severity-short-background);
-  color: var(--color-severity-short-text);
+  /* 중간 우선순위 → 옐로우-그린 계열 (중간 강조) */
+  background-color: #e6f5d0;
+  color: #5a7c2a;
 }
 
 .priority-low {
-  /* 낮은 우선순위 → Green (안정) */
+  /* 낮은 우선순위 → 연한 그레이-그린 (최소 강조) */
   background-color: var(--chateau-green-50);
-  color: var(--chateau-green-600);
+  color: var(--chateau-green-700);
 }
 
 .index-badge {

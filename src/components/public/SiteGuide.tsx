@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, ReactNode } from 'react'
 import './SiteGuide.css'
 
 export interface GuideStep {
@@ -12,10 +12,39 @@ interface SiteGuideProps {
   title: string
   description: string
   steps: GuideStep[]
+  onUCIInfoClick?: () => void
 }
 
-const SiteGuide = ({ title, description, steps }: SiteGuideProps) => {
+const SiteGuide = ({ title, description, steps, onUCIInfoClick }: SiteGuideProps) => {
   const [isOpen, setIsOpen] = useState(false)
+
+  // description에서 "도시 편의성 지수(Urban Comfort Index)" 부분을 클릭 가능한 요소로 변환
+  const renderDescription = (text: string): ReactNode => {
+    if (!onUCIInfoClick) {
+      return text
+    }
+
+    const pattern = /(도시 편의성 지수\(Urban Comfort Index\))/g
+    const parts = text.split(pattern)
+
+    return parts.map((part, index) => {
+      if (part.match(pattern)) {
+        return (
+          <button
+            key={index}
+            className="guide-description-uci-link"
+            onClick={(e) => {
+              e.stopPropagation()
+              onUCIInfoClick()
+            }}
+          >
+            {part}
+          </button>
+        )
+      }
+      return <span key={index}>{part}</span>
+    })
+  }
 
   return (
     <div className="site-guide">
@@ -70,7 +99,7 @@ const SiteGuide = ({ title, description, steps }: SiteGuideProps) => {
         <div className="site-guide-content">
           <div className="guide-header">
             <h2 className="guide-title">{title}</h2>
-            <p className="guide-description">{description}</p>
+            <p className="guide-description">{renderDescription(description)}</p>
           </div>
 
           <div className="guide-steps">

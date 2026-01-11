@@ -11,6 +11,52 @@
   text-align: center;
 }
 
+.uci-info-link {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.uci-info-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  color: var(--chateau-green-700);
+  background: none;
+  border: none;
+  border-bottom: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  text-align: center;
+  font-weight: var(--font-weight-medium);
+}
+
+.uci-info-button:hover {
+  color: var(--chateau-green-800);
+  border-bottom-color: var(--chateau-green-400);
+}
+
+.uci-info-button:active {
+  transform: scale(0.98);
+}
+
+.uci-info-button-english {
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-normal);
+}
+
+.uci-info-icon {
+  font-size: var(--font-size-base);
+  opacity: 0.7;
+  transition: opacity var(--transition-base);
+}
+
+.uci-info-button:hover .uci-info-icon {
+  opacity: 1;
+}
+
 .dashboard-nav {
   margin-bottom: var(--spacing-3xl);
   padding: var(--spacing-md) 0;

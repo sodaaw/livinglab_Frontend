@@ -5,6 +5,7 @@ import BeforeAfterTracking from '../components/admin/BeforeAfterTracking'
 import TimePatternAnalysis from '../components/admin/TimePatternAnalysis'
 import BlindSpotDetection from '../components/admin/BlindSpotDetection'
 import SiteGuide, { GuideStep } from '../components/public/SiteGuide'
+import UCIInfoModal from '../components/UCIInfoModal'
 import { apiClient, getTodayDateString } from '../utils/api'
 import './AdminDashboard.css'
 
@@ -31,6 +32,9 @@ const AdminDashboard = () => {
     { key: 'timepattern' as const, label: '시간대별 패턴 분석' },
     { key: 'tracking' as const, label: '개입 전후 효과 추적' }
   ]
+
+  // 핵심 액션 요약 데이터
+  const [isUCIInfoOpen, setIsUCIInfoOpen] = useState(false)
 
   // 핵심 액션 요약 데이터
   const [criticalActions, setCriticalActions] = useState({
@@ -142,51 +146,56 @@ const AdminDashboard = () => {
     {
       step: 1,
       title: '우선순위 검사 대기열 확인',
-      description: '편의성 지수와 위험도를 기준으로 자동 정렬된 검사 대기열을 확인하고, 우선 처리 대상 지역을 검토합니다.',
+      description: '지금 가장 먼저 개입이 필요한 지역을 확인하세요.',
       sections: [
-        '우선순위가 높은 지역의 자동 식별 및 정렬 결과를 조회할 수 있습니다.',
-        '지역별 편의성 지수 및 위험도 점수를 확인할 수 있습니다.',
-        '검사 상태를 업데이트하고 처리 진행 현황을 관리할 수 있습니다.'
+        '편의성 지수와 위험도를 기준으로 자동 정렬된 검사 대기열을 통해 우선적으로 검토해야 할 지역을 빠르게 파악할 수 있습니다.',
+        '우선순위가 높은 지역을 자동으로 식별한 결과를 확인할 수 있습니다.',
+        '지역별 도시 편의성 지수 및 위험도 점수를 비교·검토할 수 있습니다.',
+        '검사 상태를 업데이트하며 처리 진행 현황을 관리할 수 있습니다.'
       ]
     },
     {
       step: 2,
       title: '사각지대 탐지',
-      description: '데이터가 부족하거나 장기간 모니터링되지 않은 지역을 식별하여 관리 공백을 최소화합니다.',
+      description: '관리에서 놓치고 있는 지역이 있는지 점검하세요.',
       sections: [
+        '데이터 부족이나 장기간 모니터링 공백이 발생한 지역을 식별하여, 관리 사각지대를 최소화할 수 있습니다.',
         '데이터 수집이 충분하지 않은 지역을 확인할 수 있습니다.',
         '장기간 신호가 감지되지 않은 지역을 조회할 수 있습니다.',
-        '모니터링 커버리지를 분석하고 개선 방향을 검토할 수 있습니다.'
+        '전체 모니터링 커버리지를 분석하고 개선이 필요한 지점을 파악할 수 있습니다.'
       ]
     },
     {
       step: 3,
       title: '시간대별 패턴 분석',
-      description: '시간대, 요일, 계절별 변화 패턴을 분석하여 효율적인 개입 시점을 도출합니다.',
+      description: '언제 개입하는 것이 가장 효과적인지 판단하세요.',
       sections: [
-        '시간대별 편의성 지수 변화 패턴을 확인할 수 있습니다.',
+        '시간대·요일·계절별 변화 패턴을 분석하여 효율적인 개입 시점과 주기를 도출할 수 있습니다.',
+        '시간대별 도시 편의성 지수 변화 패턴을 확인할 수 있습니다.',
         '요일 및 계절 단위의 장기 트렌드를 분석할 수 있습니다.',
-        '개입이 효과적인 시기와 주기를 검토할 수 있습니다.'
+        '개입 효과가 높을 것으로 예상되는 시점을 검토할 수 있습니다.'
       ]
     },
     {
       step: 4,
       title: '개입 권고사항 검토',
-      description: '시스템이 제안하는 개입 유형과 예상 효과를 검토하여 실행 여부를 판단합니다.',
+      description: '시스템이 제안한 개입 방안을 검토하고 실행 여부를 결정하세요.',
       sections: [
+        '분석 결과를 바탕으로 제안된 개입 유형과 그에 따른 예상 효과를 비교·검토할 수 있습니다.',
         '지역별 맞춤형 개입 권고사항을 확인할 수 있습니다.',
-        '예상 효과 및 비용-효과 분석 결과를 검토할 수 있습니다.',
-        '권고사항 승인 및 실행 계획 수립을 지원합니다.'
+        '예상 효과 및 비용 대비 효과 분석 결과를 검토할 수 있습니다.',
+        '개입 승인 여부를 판단하고 실행 계획 수립을 지원합니다.'
       ]
     },
     {
       step: 5,
       title: '개입 전후 효과 추적',
-      description: '개입 전후의 변화를 데이터로 비교·분석하여 향후 의사결정에 반영합니다.',
+      description: '실제로 효과가 있었는지 데이터로 확인하세요.',
       sections: [
-        '개입 전후 편의성 지수 변화를 조회할 수 있습니다.',
+        '개입 전후의 변화를 비교 분석하여 향후 의사결정과 정책 개선에 활용할 수 있습니다.',
+        '개입 전후 도시 편의성 지수 변화를 비교할 수 있습니다.',
         '개입 효과 분석 리포트를 생성할 수 있습니다.',
-        '성공 사례 및 추가 개선이 필요한 사항을 도출할 수 있습니다.'
+        '성공 사례와 추가 개선이 필요한 요소를 도출할 수 있습니다.'
       ]
     }
   ]
@@ -197,21 +206,28 @@ const AdminDashboard = () => {
         <div className="dashboard-header">
           <h1 className="title">관리자 대시보드</h1>
           <p className="body-large text-secondary mt-md">
-            도시 편의성 지수를 기반으로 한 우선순위 기반 의사결정 도구
+            지금 가장 먼저 개입해야 할 지역을 한눈에 판단하는 관리자 도구
           </p>
         </div>
 
+        <UCIInfoModal
+          isOpen={isUCIInfoOpen}
+          onClose={() => setIsUCIInfoOpen(false)}
+          variant="admin"
+        />
+
         <SiteGuide
-          title="관리자용 사이트 활용 가이드"
-          description="이 대시보드는 도시 편의성 지수를 기반으로 효율적인 의사결정을 지원하기 위해 설계되었습니다. 아래 단계를 따라 순서대로 확인하시면 체계적으로 업무를 진행하실 수 있습니다."
+          title="관리자 사이트 활용 가이드"
+          description="이 대시보드는 도시 편의성 지수(Urban Comfort Index)를 바탕으로, 어디를 먼저 확인하고 개입해야 할지 빠르게 판단할 수 있도록 설계되었습니다. 아래 단계를 따라가며 확인하시면, 의사결정 흐름을 자연스럽게 파악하실 수 있습니다."
           steps={guideSteps}
+          onUCIInfoClick={() => setIsUCIInfoOpen(true)}
         />
 
         {/* 핵심 액션 요약 섹션 */}
         <div className="critical-actions-summary">
           <div className="critical-actions-header">
-            <h2 className="critical-actions-title">지금 바로 확인해야 할 사항</h2>
-            <p className="critical-actions-subtitle">시스템이 우선적으로 개입을 권고하는 항목입니다</p>
+            <h2 className="critical-actions-title">지금 바로 확인이 필요한 항목</h2>
+            <p className="critical-actions-subtitle">시스템이 우선적으로 개입을 권고하는 지역입니다</p>
           </div>
           
           <div className="critical-actions-grid">
@@ -226,7 +242,7 @@ const AdminDashboard = () => {
               </div>
               <div className="critical-action-content">
                 <div className="critical-action-main">
-                  <span className="critical-action-label">우선순위 검사 대기</span>
+                  <span className="critical-action-label">우선 검토가 필요한 지역</span>
                   <div className="critical-action-value">
                     <span className="critical-action-number">{criticalActions.highPriorityCount}</span>
                     <span className="critical-action-unit">건</span>
@@ -234,7 +250,7 @@ const AdminDashboard = () => {
                 </div>
                 <div className="critical-action-detail">
                   <span className="critical-action-location">{criticalActions.topPriority.location}</span>
-                  <span className="critical-action-index">편의성 지수: {criticalActions.topPriority.index}</span>
+                  <span className="critical-action-index">현재 도시 편의성 지수: {criticalActions.topPriority.index}</span>
                 </div>
               </div>
               <div className="critical-action-arrow">→</div>
@@ -251,15 +267,10 @@ const AdminDashboard = () => {
               </div>
               <div className="critical-action-content">
                 <div className="critical-action-main">
-                  <span className="critical-action-label">즉시 개입 권고</span>
-                  <div className="critical-action-value">
-                    <span className="critical-action-number">{criticalActions.immediateActionsCount}</span>
-                    <span className="critical-action-unit">건</span>
-                  </div>
+                  <span className="critical-action-label">즉시 개입이 필요한 항목 없음</span>
                 </div>
                 <div className="critical-action-detail">
-                  <span className="critical-action-location">{criticalActions.topRecommendation.type}</span>
-                  <span className="critical-action-index">{criticalActions.topRecommendation.impact}</span>
+                  <span className="critical-action-location">현재 긴급 개입 대상 지역은 없습니다</span>
                 </div>
               </div>
               <div className="critical-action-arrow">→</div>

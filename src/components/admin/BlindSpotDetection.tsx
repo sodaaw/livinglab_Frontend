@@ -26,14 +26,14 @@ const mockBlindSpots: BlindSpot[] = [
     lat: 37.5120,
     lng: 127.0280,
     riskLevel: 'high',
-    detectionReason: '민원은 적으나 비둘기 활동이 급증하여 사각지대 가능성',
+    detectionReason: '민원 발생은 적으나 비둘기 활동 신호가 급증해, 행정 사각지대일 가능성이 있습니다',
     signals: {
       human: { value: 3, status: 'low' },
       geo: { value: 6.5, status: 'normal' },
       population: { value: 450, status: 'normal' },
       pigeon: { detected: true, intensity: 'high' }
     },
-    recommendedAction: '현장 점검 및 추가 모니터링 필요'
+    recommendedAction: '현장 점검을 통해 원인 확인 및 추가 모니터링을 권장합니다'
   },
   {
     id: 'bs2',
@@ -48,7 +48,7 @@ const mockBlindSpots: BlindSpot[] = [
       population: { value: 380, status: 'low' },
       pigeon: { detected: false, intensity: null }
     },
-    recommendedAction: '구조 취약성과 신호 불일치 원인 분석 필요'
+    recommendedAction: '구조 취약성과 신호 불일치 원인 분석을 권장합니다'
   },
   {
     id: 'bs3',
@@ -200,7 +200,7 @@ const BlindSpotDetection = () => {
         <div className="section-header">
           <h2 className="heading-2">사각지대 탐지</h2>
           <p className="body-small text-secondary mt-sm">
-            신호 간 불일치를 분석하여 행정 데이터가 놓치는 사각지대를 탐지합니다
+            서로 다른 신호 간 차이를 분석해, 추가 점검이 필요한 지역을 식별합니다
           </p>
         </div>
         <div className="loading-state">
@@ -260,7 +260,7 @@ const BlindSpotDetection = () => {
                     color: getRiskColor(spot.riskLevel)
                   }}
                 >
-                  위험도: {getRiskLabel(spot.riskLevel)}
+                  점검 필요도: {getRiskLabel(spot.riskLevel)}
                 </span>
               </div>
             </div>

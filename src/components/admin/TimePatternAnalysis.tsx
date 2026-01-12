@@ -354,7 +354,7 @@ const TimePatternAnalysis = () => {
       {error && (
         <div className="error-state" style={{ padding: '16px', marginBottom: '16px', backgroundColor: 'var(--gray-100)', borderRadius: '4px' }}>
           <p className="body-small" style={{ color: 'var(--chateau-green-600)' }}>
-            ⚠️ {error} (더미데이터로 표시 중)
+            ⚠️ {error}
           </p>
         </div>
       )}

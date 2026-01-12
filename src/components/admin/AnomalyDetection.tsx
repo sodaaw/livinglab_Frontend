@@ -185,20 +185,6 @@ const AnomalyDetection = () => {
         </p>
       </div>
 
-      {usingDummyData && (
-        <div className="dummy-data-notice" style={{ 
-          padding: '12px 16px', 
-          marginBottom: '16px', 
-          backgroundColor: 'var(--gray-100)', 
-          borderRadius: '4px',
-          border: '1px solid var(--gray-300)'
-        }}>
-          <p className="body-small" style={{ color: 'var(--chateau-green-600)' }}>
-            ⚠️ 현재 더미데이터로 표시 중입니다. API 응답이 비어있거나 0입니다.
-          </p>
-        </div>
-      )}
-
       {error && (
         <div className="error-state" style={{ 
           padding: '12px 16px', 
@@ -207,7 +193,7 @@ const AnomalyDetection = () => {
           borderRadius: '4px' 
         }}>
           <p className="body-small" style={{ color: 'var(--chateau-green-600)' }}>
-            ⚠️ {error} {usingDummyData && '(더미데이터로 표시 중)'}
+            ⚠️ {error}
           </p>
         </div>
       )}

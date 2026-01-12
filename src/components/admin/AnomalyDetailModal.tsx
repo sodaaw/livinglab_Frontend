@@ -149,18 +149,10 @@ const AnomalyDetailModal = ({ unitId, date, onClose }: AnomalyDetailModalProps) 
         </div>
 
         <div className="modal-body">
-          {usingDummyData && (
-            <div className="dummy-data-notice">
-              <p className="body-small" style={{ color: 'var(--chateau-green-600)' }}>
-                ⚠️ 현재 더미데이터로 표시 중입니다. API 응답이 비어있거나 유효하지 않습니다.
-              </p>
-            </div>
-          )}
-
           {error && (
             <div className="error-state">
               <p className="body-small" style={{ color: 'var(--chateau-green-600)' }}>
-                ⚠️ {error} {usingDummyData && '(더미데이터로 표시 중)'}
+                ⚠️ {error}
               </p>
             </div>
           )}

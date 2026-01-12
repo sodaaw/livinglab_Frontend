@@ -587,20 +587,11 @@ const DetectionSection = ({ initialTab }: DetectionSectionProps) => {
           </div>
         ) : (
           <>
-            {/* 더미 데이터 경고 */}
-            {activeTab === 'anomaly' && usingDummyData && (
-              <div className="dummy-data-notice">
-                <p className="body-small">
-                  ⚠️ 현재 더미데이터로 표시 중입니다. API 응답이 비어있거나 0입니다.
-                </p>
-              </div>
-            )}
-
             {/* 에러 메시지 */}
             {error && (
               <div className="error-state">
                 <p className="body-small">
-                  ⚠️ {error} {activeTab === 'anomaly' && usingDummyData && '(더미데이터로 표시 중)'}
+                  ⚠️ {error}
                 </p>
               </div>
             )}

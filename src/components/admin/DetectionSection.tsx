@@ -344,7 +344,6 @@ const DetectionSection = ({ initialTab }: DetectionSectionProps) => {
   const [anomalies, setAnomalies] = useState<Anomaly[]>([])
   const [anomalyLoading, setAnomalyLoading] = useState(false)
   const [anomalyError, setAnomalyError] = useState<string | null>(null)
-  const [usingDummyData, setUsingDummyData] = useState(false)
   
   // 모달 상태
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null)
@@ -410,7 +409,6 @@ const DetectionSection = ({ initialTab }: DetectionSectionProps) => {
       try {
         setAnomalyLoading(true)
         setAnomalyError(null)
-        setUsingDummyData(false)
         
         const date = getTodayDateString()
         const response = await apiClient.getAnomalies({ date }) as Anomaly[]
@@ -427,13 +425,11 @@ const DetectionSection = ({ initialTab }: DetectionSectionProps) => {
         } else {
           console.warn('⚠️ [이상 탐지] API 응답이 비어있거나 0입니다. 더미데이터로 보완합니다.')
           setAnomalies(mockAnomalies)
-          setUsingDummyData(true)
         }
       } catch (err) {
         console.error('❌ 이상 탐지 데이터 로딩 실패:', err)
         setAnomalyError(err instanceof Error ? err.message : '데이터를 불러오는 중 오류가 발생했습니다.')
         setAnomalies(mockAnomalies)
-        setUsingDummyData(true)
       } finally {
         setAnomalyLoading(false)
       }

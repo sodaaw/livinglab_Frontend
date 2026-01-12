@@ -83,7 +83,6 @@ const AnomalyDetection = () => {
   const [anomalies, setAnomalies] = useState<Anomaly[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [usingDummyData, setUsingDummyData] = useState(false)
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null)
   const [selectedDate, setSelectedDate] = useState<string | undefined>(undefined)
 
@@ -93,7 +92,6 @@ const AnomalyDetection = () => {
       try {
         setLoading(true)
         setError(null)
-        setUsingDummyData(false)
         
         const date = getTodayDateString()
         const response = await apiClient.getAnomalies({ date }) as Anomaly[]
@@ -120,7 +118,6 @@ const AnomalyDetection = () => {
             response: response
           })
           setAnomalies(mockAnomalies)
-          setUsingDummyData(true)
         }
       } catch (err) {
         console.error('❌ 이상 탐지 데이터 로딩 실패:', err)
@@ -128,7 +125,6 @@ const AnomalyDetection = () => {
         // 에러 발생 시 더미데이터로 fallback
         console.warn('⚠️ [이상 탐지] 에러 발생으로 인해 더미데이터로 보완합니다.')
         setAnomalies(mockAnomalies)
-        setUsingDummyData(true)
       } finally {
         setLoading(false)
       }
@@ -173,7 +169,7 @@ const AnomalyDetection = () => {
       lat: anomaly.lat!,
       lng: anomaly.lng!,
       comfortIndex: 0,
-      priority: anomaly.anomaly_score >= 0.8 ? 'high' : anomaly.anomaly_score >= 0.6 ? 'medium' : 'low'
+      priority: (anomaly.anomaly_score >= 0.8 ? 'high' : anomaly.anomaly_score >= 0.6 ? 'medium' : 'low') as 'high' | 'medium' | 'low'
     }))
 
   return (

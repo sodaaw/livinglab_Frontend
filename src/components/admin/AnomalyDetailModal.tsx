@@ -30,7 +30,6 @@ const AnomalyDetailModal = ({ unitId, date, onClose }: AnomalyDetailModalProps) 
   const [anomaly, setAnomaly] = useState<AnomalyDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [usingDummyData, setUsingDummyData] = useState(false)
 
   // 더미 데이터
   const mockAnomalyDetail: AnomalyDetail = {
@@ -54,7 +53,6 @@ const AnomalyDetailModal = ({ unitId, date, onClose }: AnomalyDetailModalProps) 
       try {
         setLoading(true)
         setError(null)
-        setUsingDummyData(false)
 
         const queryDate = date || getTodayDateString()
         const response = await apiClient.getAnomalyByUnit(unitId, { date: queryDate }) as AnomalyDetail
@@ -75,7 +73,6 @@ const AnomalyDetailModal = ({ unitId, date, onClose }: AnomalyDetailModalProps) 
             response: response
           })
           setAnomaly(mockAnomalyDetail)
-          setUsingDummyData(true)
         }
       } catch (err) {
         console.error('❌ 이상 탐지 상세 데이터 로딩 실패:', err)
@@ -83,7 +80,6 @@ const AnomalyDetailModal = ({ unitId, date, onClose }: AnomalyDetailModalProps) 
         // 에러 발생 시 더미데이터로 fallback
         console.warn('⚠️ [이상 탐지 상세] 에러 발생으로 인해 더미데이터로 보완합니다.')
         setAnomaly(mockAnomalyDetail)
-        setUsingDummyData(true)
       } finally {
         setLoading(false)
       }

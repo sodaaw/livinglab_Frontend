@@ -87,16 +87,47 @@ const ImprovementStatus = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'improving':
-        return 'var(--chateau-green-600)'
       case 'stable':
-        return 'var(--chateau-green-500)'
+        return 'var(--status-success-text)'
       case 'monitoring':
-        return 'var(--gray-500)'
+        return 'var(--status-warning-text)'
+      case 'attention':
+        return 'var(--status-attention-text)'
+      case 'danger':
+        return 'var(--status-danger-text)'
       case 'completed':
-        return 'var(--chateau-green-700)'
+        return 'var(--status-success-text)'
+      case 'improving':
       default:
-        return 'var(--gray-500)'
+        return 'var(--status-success-text)'
+    }
+  }
+
+  const getStatusBackgroundColor = (status: string) => {
+    switch (status) {
+      case 'stable':
+        return 'var(--status-success-background)'
+      case 'monitoring':
+        return 'var(--status-warning-background)'
+      case 'attention':
+        return 'var(--status-attention-background)'
+      case 'danger':
+        return 'var(--status-danger-background)'
+      case 'completed':
+        return 'var(--status-success-background)'
+      case 'improving':
+      default:
+        return 'var(--status-success-background)'
+    }
+  }
+
+  const getProgressColor = (progress: number) => {
+    if (progress <= 30) {
+      return 'var(--status-danger-strong)'
+    } else if (progress <= 70) {
+      return 'var(--status-attention-strong)'
+    } else {
+      return 'var(--status-success-strong)'
     }
   }
 
@@ -134,8 +165,12 @@ const ImprovementStatus = () => {
               <h3 className="improvement-category">{item.category}</h3>
               <span
                 className="status-badge"
-                style={{ color: getStatusColor(item.status) }}
+                style={{
+                  color: getStatusColor(item.status),
+                  backgroundColor: getStatusBackgroundColor(item.status)
+                }}
               >
+                {item.status === 'completed' && '✓ '}
                 {getStatusLabel(item.status)}
               </span>
             </div>
@@ -155,7 +190,7 @@ const ImprovementStatus = () => {
                   className="progress-fill"
                   style={{
                     width: `${item.progress}%`,
-                    backgroundColor: getStatusColor(item.status)
+                    backgroundColor: getProgressColor(item.progress)
                   }}
                 />
               </div>

@@ -47,7 +47,15 @@
 }
 
 .summary-change.positive {
-  color: var(--chateau-green-600);
+  color: var(--status-success-strong);
+}
+
+.summary-change.negative {
+  color: var(--status-attention-strong);
+}
+
+.summary-change.neutral {
+  color: var(--gray-500);
 }
 
 .summary-description {

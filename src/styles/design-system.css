@@ -64,6 +64,37 @@
   --color-info-text: #0369a1;
   --color-info-border: #7dd3fc;
 
+  /* Status Color Tokens - 시민용 대시보드 신호 색상 (파스텔/소프트 톤) */
+  /* Success: 안정적, 완료, 감소(좋은 의미) */
+  --status-success-background: var(--chateau-green-50);
+  --status-success-text: var(--chateau-green-700);
+  --status-success-border: var(--chateau-green-300);
+  --status-success-strong: var(--chateau-green-600);
+
+  /* Warning: 모니터링 중 (노란색 - 파스텔) */
+  --status-warning-background: #fef9c3;
+  --status-warning-text: #854d0e;
+  --status-warning-border: #fde047;
+  --status-warning-strong: #ca8a04;
+
+  /* Attention: 주의 필요 (주황색 - 파스텔) */
+  --status-attention-background: #ffedd5;
+  --status-attention-text: #9a3412;
+  --status-attention-border: #fdba74;
+  --status-attention-strong: #ea580c;
+
+  /* Danger: 긴급/악화 (빨간색 - 파스텔, 남발하지 않음) */
+  --status-danger-background: #fee2e2;
+  --status-danger-text: #991b1b;
+  --status-danger-border: #fca5a5;
+  --status-danger-strong: #dc2626;
+
+  /* Info: 정보성 (파란/회색) */
+  --status-info-background: var(--color-info-background);
+  --status-info-text: var(--color-info-text);
+  --status-info-border: var(--color-info-border);
+  --status-info-strong: #0284c7;
+
   /* Typography */
   --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',

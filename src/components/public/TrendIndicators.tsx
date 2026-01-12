@@ -20,6 +20,10 @@ const TrendIndicators = () => {
   const previousIndex = mockTrendData[mockTrendData.length - 2].citywide
   const change = currentIndex - previousIndex
   const changePercent = ((change / previousIndex) * 100).toFixed(1)
+  
+  // 도시 편의성 지수는 증가가 좋은 의미이므로, 증가 = green
+  const changeType = change > 0 ? 'positive' : change < 0 ? 'negative' : 'neutral'
+  const changeIcon = change > 0 ? '▲' : change < 0 ? '▼' : '—'
 
   return (
     <div className="trend-indicators">
@@ -35,8 +39,8 @@ const TrendIndicators = () => {
           <div className="summary-card">
             <div className="summary-label">현재 도시 편의성 지수</div>
             <div className="summary-value">{currentIndex}</div>
-            <div className="summary-change positive">
-              전 분기 대비 +{change}점 ({changePercent}% 증가)
+            <div className={`summary-change ${changeType}`}>
+              {changeIcon} 전 분기 대비 {change > 0 ? '+' : ''}{change}점 ({change > 0 ? '+' : ''}{changePercent}% {change > 0 ? '증가' : change < 0 ? '감소' : '유지'})
             </div>
           </div>
 

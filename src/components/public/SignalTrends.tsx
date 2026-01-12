@@ -79,31 +79,33 @@ const SignalTrends = () => {
 
   const getTrendColor = (trend: string) => {
     switch (trend) {
-      case 'improving':
-        return 'var(--chateau-green-600)'
       case 'stable':
-        return 'var(--gray-500)'
+        return 'var(--status-success-text)'
       case 'monitoring':
-        return 'var(--chateau-green-500)'
+        return 'var(--status-warning-text)'
       case 'attention':
-        return 'var(--color-info-text)'
+        return 'var(--status-attention-text)'
+      case 'danger':
+        return 'var(--status-danger-text)'
+      case 'improving':
       default:
-        return 'var(--gray-500)'
+        return 'var(--status-success-text)'
     }
   }
 
   const getTrendBackgroundColor = (trend: string) => {
     switch (trend) {
-      case 'improving':
-        return 'var(--chateau-green-50)'
       case 'stable':
-        return 'var(--gray-100)'
+        return 'var(--status-success-background)'
       case 'monitoring':
-        return 'var(--chateau-green-100)'
+        return 'var(--status-warning-background)'
       case 'attention':
-        return 'var(--color-info-background)'
+        return 'var(--status-attention-background)'
+      case 'danger':
+        return 'var(--status-danger-background)'
+      case 'improving':
       default:
-        return 'var(--gray-100)'
+        return 'var(--status-success-background)'
     }
   }
 
@@ -123,13 +125,26 @@ const SignalTrends = () => {
   const getSignalColor = (signal: string) => {
     switch (signal) {
       case 'increasing':
-        return 'var(--color-info-text)'
+        return 'var(--status-attention-strong)'
       case 'stable':
         return 'var(--gray-500)'
       case 'decreasing':
-        return 'var(--chateau-green-600)'
+        return 'var(--status-success-strong)'
       default:
         return 'var(--gray-500)'
+    }
+  }
+
+  const getSignalIcon = (signal: string) => {
+    switch (signal) {
+      case 'increasing':
+        return '▲'
+      case 'stable':
+        return '—'
+      case 'decreasing':
+        return '▼'
+      default:
+        return ''
     }
   }
 
@@ -168,7 +183,7 @@ const SignalTrends = () => {
                   className="signal-value"
                   style={{ color: getSignalColor(trend.signals.human) }}
                 >
-                  {getSignalLabel(trend.signals.human)}
+                  {getSignalIcon(trend.signals.human)} {getSignalLabel(trend.signals.human)}
                 </span>
               </div>
               {trend.signals.population && (
@@ -178,7 +193,7 @@ const SignalTrends = () => {
                     className="signal-value"
                     style={{ color: getSignalColor(trend.signals.population) }}
                   >
-                    {getSignalLabel(trend.signals.population)}
+                    {getSignalIcon(trend.signals.population)} {getSignalLabel(trend.signals.population)}
                   </span>
                 </div>
               )}

@@ -140,3 +140,5 @@ const UCIInfoModal = ({ isOpen, onClose, variant }: UCIInfoModalProps) => {
 
 export default UCIInfoModal
 
+
+

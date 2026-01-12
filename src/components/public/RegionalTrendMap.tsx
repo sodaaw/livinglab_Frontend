@@ -47,15 +47,19 @@ const RegionalTrendMap = ({ trends }: RegionalTrendMapProps) => {
     // 지역별 트렌드 마커 추가 (모호한 원형 영역으로 표시)
     trends.forEach((trend) => {
       const getTrendColor = (trend: string) => {
+        // CSS 변수 대신 실제 색상 값 사용 (마커 인라인 스타일용)
         switch (trend) {
-          case 'improving':
-            return 'var(--chateau-green-400)'
           case 'stable':
-            return 'var(--chateau-green-300)'
+            return '#308952' // status-success-strong (chateau-green-600)
           case 'monitoring':
-            return 'var(--chateau-green-200)'
+            return '#ca8a04' // status-warning-strong
+          case 'attention':
+            return '#ea580c' // status-attention-strong
+          case 'danger':
+            return '#dc2626' // status-danger-strong
+          case 'improving':
           default:
-            return 'var(--chateau-green-300)'
+            return '#308952' // status-success-strong
         }
       }
 
@@ -127,23 +131,23 @@ const RegionalTrendMap = ({ trends }: RegionalTrendMapProps) => {
           <div className="legend-item">
             <div
               className="legend-color"
-              style={{ backgroundColor: 'var(--chateau-green-400)' }}
-            />
-            <span>개선 중</span>
-          </div>
-          <div className="legend-item">
-            <div
-              className="legend-color"
-              style={{ backgroundColor: 'var(--chateau-green-300)' }}
+              style={{ backgroundColor: 'var(--status-success-strong)' }}
             />
             <span>안정적</span>
           </div>
           <div className="legend-item">
             <div
               className="legend-color"
-              style={{ backgroundColor: 'var(--chateau-green-200)' }}
+              style={{ backgroundColor: 'var(--status-warning-strong)' }}
             />
             <span>모니터링 중</span>
+          </div>
+          <div className="legend-item">
+            <div
+              className="legend-color"
+              style={{ backgroundColor: 'var(--status-success-strong)' }}
+            />
+            <span>개선 중</span>
           </div>
         </div>
       </div>

@@ -43,7 +43,6 @@
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
   padding: var(--spacing-xs) var(--spacing-sm);
-  background-color: var(--chateau-green-50);
   border-radius: 4px;
   white-space: nowrap;
 }

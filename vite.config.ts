@@ -9,6 +9,15 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://backend-rjk3.onrender.com',
+        changeOrigin: true,
+        secure: true,
+      },
+    },
+  },
 })
 
 

@@ -1,34 +1,44 @@
 import { useRef, useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import PriorityQueue from '../components/admin/PriorityQueue'
 import ActionRecommendations from '../components/admin/ActionRecommendations'
 import BeforeAfterTracking from '../components/admin/BeforeAfterTracking'
 import TimePatternAnalysis from '../components/admin/TimePatternAnalysis'
-import BlindSpotDetection from '../components/admin/BlindSpotDetection'
+import DetectionSection from '../components/admin/DetectionSection'
 import SiteGuide, { GuideStep } from '../components/public/SiteGuide'
 import UCIInfoModal from '../components/UCIInfoModal'
 import { apiClient, getTodayDateString } from '../utils/api'
 import './AdminDashboard.css'
 
 const AdminDashboard = () => {
+  const [searchParams, setSearchParams] = useSearchParams()
   const sections = {
     priority: useRef<HTMLElement>(null),
-    blindspot: useRef<HTMLElement>(null),
+    detection: useRef<HTMLElement>(null),
     timepattern: useRef<HTMLElement>(null),
     recommendations: useRef<HTMLElement>(null),
     tracking: useRef<HTMLElement>(null)
   }
 
-  const scrollToSection = (sectionKey: keyof typeof sections) => {
+  const scrollToSection = (sectionKey: keyof typeof sections, tab?: 'blindspot' | 'anomaly') => {
     const section = sections[sectionKey].current
     if (section) {
       section.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      
+      // detection 섹션인 경우 탭 설정
+      if (sectionKey === 'detection' && tab) {
+        const newParams = new URLSearchParams(searchParams)
+        newParams.set('detection', tab)
+        setSearchParams(newParams, { replace: true })
+      }
     }
   }
 
   const menuItems = [
     { key: 'priority' as const, label: '우선순위 검사 대기열', highlight: true },
     { key: 'recommendations' as const, label: '개입 권고사항', highlight: true },
-    { key: 'blindspot' as const, label: '사각지대 탐지' },
+    { key: 'detection' as const, label: '사각지대 탐지', tab: 'blindspot' as const },
+    { key: 'detection' as const, label: '이상 탐지 결과', tab: 'anomaly' as const },
     { key: 'timepattern' as const, label: '시간대별 패턴 분석' },
     { key: 'tracking' as const, label: '개입 전후 효과 추적' }
   ]
@@ -280,11 +290,11 @@ const AdminDashboard = () => {
 
         <nav className="dashboard-nav">
           <div className="nav-menu">
-            {menuItems.map((item) => (
+            {menuItems.map((item, index) => (
               <button
-                key={item.key}
+                key={`${item.key}-${index}`}
                 className={`nav-menu-item ${item.highlight ? 'highlight' : ''}`}
-                onClick={() => scrollToSection(item.key)}
+                onClick={() => scrollToSection(item.key, (item as any).tab)}
               >
                 {item.label}
               </button>
@@ -301,8 +311,10 @@ const AdminDashboard = () => {
             <ActionRecommendations />
           </section>
 
-          <section ref={sections.blindspot} id="blindspot" className="dashboard-section">
-            <BlindSpotDetection />
+          <section ref={sections.detection} id="detection" className="dashboard-section">
+            <DetectionSection 
+              initialTab={searchParams.get('detection') === 'anomaly' ? 'anomaly' : 'blindspot'}
+            />
           </section>
 
           <section ref={sections.timepattern} id="timepattern" className="dashboard-section">

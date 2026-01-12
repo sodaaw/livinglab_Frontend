@@ -74,6 +74,12 @@ interface InspectionItem {
     source?: string
   }
   lastInspection?: string
+  anomaly?: {
+    detected: boolean
+    anomaly_flag?: boolean
+    score?: number
+    details?: string
+  }
 }
 
 const mockData: InspectionItem[] = [
@@ -354,6 +360,35 @@ interface PriorityQueueApiResponse {
   uci_grade: string
   why_summary: string
   key_drivers: Array<{ signal: string; value: number }>
+  anomaly_flag?: boolean
+  anomaly?: {
+    detected: boolean
+    anomaly_flag?: boolean
+    score?: number
+    details?: string
+  }
+}
+
+// Anomaly API 응답 타입 정의
+interface AnomalyApiResponse {
+  unit_id: string
+  date: string
+  anomaly_flag: boolean
+  score?: number
+  details?: string
+  uci_score?: number
+  uci_grade?: string
+}
+
+interface AnomaliesApiResponse {
+  success: boolean
+  message?: string
+  date?: string
+  total?: number
+  success_count?: number
+  failed_count?: number
+  anomaly_count?: number
+  results?: AnomalyApiResponse[]
 }
 
 // Human Signal API 응답 타입 정의
@@ -465,6 +500,12 @@ const mapApiResponseToInspectionItem = (apiItem: PriorityQueueApiResponse, index
       structuralVulnerability: vulnerabilityScore,
       keyDrivers: keyDrivers, // 원본 key_drivers 데이터 보존
     },
+    // API 응답에 anomaly 정보가 포함되어 있으면 추가
+    anomaly: apiItem.anomaly_flag !== undefined ? {
+      detected: apiItem.anomaly_flag,
+      anomaly_flag: apiItem.anomaly_flag,
+      ...(apiItem.anomaly || {})
+    } : apiItem.anomaly,
   }
   return baseItem
 }
@@ -487,25 +528,69 @@ const PriorityQueue = () => {
         setLoading(true)
         setError(null)
         const date = getTodayDateString()
-        const response = await apiClient.getPriorityQueue({ date, top_n: 20 }) as PriorityQueueApiResponse[]
+        
+        // 우선순위 큐와 이상 탐지 데이터를 동시에 가져오기
+        const [priorityQueueResponse, anomaliesResponse] = await Promise.all([
+          apiClient.getPriorityQueue({ date, top_n: 20 }).catch(() => []) as Promise<PriorityQueueApiResponse[]>,
+          apiClient.getAnomalies({ date }).catch(() => null) as Promise<AnomaliesApiResponse | null>
+        ])
         
         // 백엔드에서 받은 원본 데이터 로그 출력
         console.log('📊 [우선순위 검사 대기열] 백엔드 API 응답:', {
           endpoint: '/api/v1/priority-queue',
           date,
-          responseCount: Array.isArray(response) ? response.length : 0,
-          rawData: response,
-          sampleItem: Array.isArray(response) && response.length > 0 ? response[0] : null
+          responseCount: Array.isArray(priorityQueueResponse) ? priorityQueueResponse.length : 0,
+          rawData: priorityQueueResponse,
+          sampleItem: Array.isArray(priorityQueueResponse) && priorityQueueResponse.length > 0 ? priorityQueueResponse[0] : null
         })
         
-        if (Array.isArray(response) && response.length > 0) {
-          const mappedItems = response.map((item, index) => mapApiResponseToInspectionItem(item, index))
+        // 이상 탐지 데이터 로그 출력
+        if (anomaliesResponse) {
+          console.log('📊 [우선순위 검사 대기열] 이상 탐지 API 응답:', {
+            endpoint: '/api/v1/anomaly',
+            date,
+            total: anomaliesResponse.total || 0,
+            anomaly_count: anomaliesResponse.anomaly_count || 0,
+            results: anomaliesResponse.results || []
+          })
+        }
+        
+        // 이상 탐지 데이터를 unit_id를 키로 하는 Map으로 변환
+        const anomalyMap = new Map<string, AnomalyApiResponse>()
+        if (anomaliesResponse?.results && Array.isArray(anomaliesResponse.results)) {
+          anomaliesResponse.results.forEach((anomaly: AnomalyApiResponse) => {
+            if (anomaly.unit_id) {
+              anomalyMap.set(anomaly.unit_id, anomaly)
+            }
+          })
+        }
+        
+        if (Array.isArray(priorityQueueResponse) && priorityQueueResponse.length > 0) {
+          const mappedItems = priorityQueueResponse.map((item, index) => {
+            const mappedItem = mapApiResponseToInspectionItem(item, index)
+            
+            // 이상 탐지 데이터가 있으면 추가 (API 응답에 없을 경우)
+            if (!mappedItem.anomaly) {
+              const anomalyData = anomalyMap.get(item.unit_id)
+              if (anomalyData) {
+                mappedItem.anomaly = {
+                  detected: anomalyData.anomaly_flag,
+                  anomaly_flag: anomalyData.anomaly_flag,
+                  score: anomalyData.score,
+                  details: anomalyData.details
+                }
+              }
+            }
+            
+            return mappedItem
+          })
           
           // 매핑된 데이터 로그 출력
           console.log('✅ [우선순위 검사 대기열] 매핑 완료:', {
             mappedCount: mappedItems.length,
             mappedItems: mappedItems,
-            sampleMappedItem: mappedItems[0] || null
+            sampleMappedItem: mappedItems[0] || null,
+            anomalyDataCount: anomalyMap.size
           })
           
           setItems(mappedItems)
@@ -907,7 +992,7 @@ const PriorityQueue = () => {
       {error && (
         <div className="error-state" style={{ padding: '16px', marginBottom: '16px', backgroundColor: 'var(--gray-100)', borderRadius: '4px' }}>
           <p className="body-small" style={{ color: 'var(--chateau-green-600)' }}>
-            ⚠️ {error} (더미데이터로 표시 중)
+            ⚠️ {error}
           </p>
         </div>
       )}
@@ -1004,6 +1089,11 @@ const PriorityQueue = () => {
               {selectedItem.pigeonSignals?.detected && (
                 <span className="pigeon-badge" title="비둘기 신호 감지됨">
                   생태 신호
+                </span>
+              )}
+              {selectedItem.anomaly?.detected && (
+                <span className="anomaly-badge" title={selectedItem.anomaly.details || "이상 탐지됨"}>
+                  이상 탐지
                 </span>
               )}
             </div>

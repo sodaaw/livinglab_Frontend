@@ -342,24 +342,27 @@
   line-height: 1;
 }
 
-/* 우선순위에 따른 색상 - 그린 테마 중심 */
+/* 우선순위에 따른 색상 - 높음: 빨간색, 보통: 노란색, 낮음: 초록색 */
 .priority-high {
-  /* 높은 우선순위 → 진한 그린 계열 (강조) */
-  background-color: var(--chateau-green-600);
-  color: var(--white);
+  /* 높은 우선순위 → 빨간색 */
+  background-color: var(--color-severity-immediate-background);
+  color: var(--color-severity-immediate-text);
+  border: 1px solid var(--color-severity-immediate-border);
   box-shadow: var(--shadow-sm);
 }
 
 .priority-medium {
-  /* 중간 우선순위 → 옐로우-그린 계열 (중간 강조) */
-  background-color: #e6f5d0;
-  color: #5a7c2a;
+  /* 중간 우선순위 → 노란색 */
+  background-color: var(--color-severity-mid-background);
+  color: var(--color-severity-mid-text);
+  border: 1px solid var(--color-severity-mid-border);
 }
 
 .priority-low {
-  /* 낮은 우선순위 → 연한 그레이-그린 (최소 강조) */
-  background-color: var(--chateau-green-50);
+  /* 낮은 우선순위 → 초록색 */
+  background-color: var(--chateau-green-100);
   color: var(--chateau-green-700);
+  border: 1px solid var(--chateau-green-300);
 }
 
 .index-badge {
@@ -524,6 +527,15 @@
   padding: var(--spacing-xs) var(--spacing-md);
   background-color: var(--chateau-green-200);
   color: var(--chateau-green-800);
+  border-radius: 4px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+.anomaly-badge {
+  padding: var(--spacing-xs) var(--spacing-md);
+  background-color: var(--color-severity-immediate-bg);
+  color: var(--color-severity-immediate-text);
   border-radius: 4px;
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);

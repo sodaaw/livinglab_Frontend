@@ -1,6 +1,9 @@
 // API Base URL
-// 가이드라인에 따라 Render 배포 URL 사용 (환경 변수로 오버라이드 가능)
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://backend-rjk3.onrender.com'
+// 개발 환경에서는 Vite 프록시 사용 (상대 경로)
+// 프로덕션 환경에서는 환경 변수 또는 기본 프로덕션 URL 사용
+const API_BASE_URL = import.meta.env.DEV
+  ? '' // 개발 환경: Vite 프록시 사용 (상대 경로)
+  : (import.meta.env.VITE_API_BASE_URL || 'https://backend-rjk3.onrender.com')
 
 // Health Check 응답 타입
 interface HealthCheckResponse {
@@ -294,6 +297,35 @@ class ApiClient {
     if (params?.date) queryParams.append('date', params.date)
     if (params?.period) queryParams.append('period', params.period)
     return this.request(`/api/v1/dashboard/time-pattern?${queryParams.toString()}`)
+  }
+
+  // Anomaly (이상 탐지)
+  async computeAnomaly(params: { date: string; unit_id?: string }) {
+    return this.request('/api/v1/anomaly/compute', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    })
+  }
+
+  async getAnomalies(params?: {
+    date?: string
+    unit_id?: string
+    anomaly_flag?: boolean
+  }) {
+    const queryString = params
+      ? '?' + new URLSearchParams(
+          Object.entries(params).filter(([_, v]) => v !== undefined).map(([k, v]) => [
+            k,
+            v === true ? 'true' : v === false ? 'false' : String(v)
+          ]) as [string, string][]
+        ).toString()
+      : ''
+    return this.request(`/api/v1/anomaly${queryString}`)
+  }
+
+  async getAnomalyByUnit(unitId: string, params?: { date?: string }) {
+    const queryString = params?.date ? `?date=${params.date}` : ''
+    return this.request(`/api/v1/anomaly/${unitId}${queryString}`)
   }
 
   // Data Management (데이터 관리)

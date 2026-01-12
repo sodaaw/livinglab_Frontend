@@ -12,6 +12,77 @@ interface HealthCheckResponse {
   error?: string
 }
 
+// Analytics 응답 타입
+export interface AnalyticsTrendResponse {
+  unit_id: string
+  hasData: boolean
+  data_quality: string
+  current: {
+    uci_score: number
+    uci_grade: string
+  }
+  trend: {
+    direction: string
+    slope: number
+    change_rate: string
+    confidence: number
+  }
+  forecast: Array<{
+    date: string
+    value: number
+    confidence: number
+  }>
+  moving_averages: {
+    ma7: number[]
+    ma14: number[]
+  }
+  seasonality: Record<string, any>
+  statistics: {
+    min: number
+    max: number
+    mean: number
+    std: number
+  }
+}
+
+export interface ComplaintTrendResponse {
+  unit_id: string
+  hasData: boolean
+  current: {
+    total_complaints: number
+  }
+  trend: {
+    direction: string
+    slope: number
+    confidence: number
+  }
+  forecast: Array<{
+    date: string
+    value: number
+    confidence?: number
+  }>
+  seasonality: Record<string, any>
+}
+
+export interface DataQualityResponse {
+  success: boolean
+  report_date: string
+  unit_id?: string
+  date_range: {
+    start: string
+    end: string
+  }
+  completeness_score: number
+  missing_data_points: number
+  outliers_detected: number
+  quality_score: number
+  details: {
+    human_signals: Record<string, any>
+    population_signals: Record<string, any>
+    comfort_index: Record<string, any>
+  }
+}
+
 // API 클라이언트 클래스
 class ApiClient {
   private baseURL: string
@@ -360,6 +431,37 @@ class ApiClient {
   async getDataFiles(type?: 'raw' | 'processed' | 'uploads') {
     const queryString = type ? `?type=${type}` : ''
     return this.request(`/api/v1/data/files${queryString}`)
+  }
+
+  // Analytics
+  async getAnalyticsTrend(params: { unit_id: string; days?: number; forecast_days?: number }) {
+    const queryString = new URLSearchParams(
+      Object.entries(params).filter(([_, v]) => v !== undefined).map(([k, v]) => [
+        k,
+        String(v)
+      ]) as [string, string][]
+    ).toString()
+    return this.request<AnalyticsTrendResponse>(`/api/v1/analytics/trend?${queryString}`)
+  }
+
+  async getComplaintTrend(params: { unit_id: string; days?: number; forecast_days?: number }) {
+    const queryString = new URLSearchParams(
+      Object.entries(params).filter(([_, v]) => v !== undefined).map(([k, v]) => [
+        k,
+        String(v)
+      ]) as [string, string][]
+    ).toString()
+    return this.request<ComplaintTrendResponse>(`/api/v1/analytics/complaint-trend?${queryString}`)
+  }
+
+  async getDataQuality(params: { unit_id?: string; start_date: string; end_date: string }) {
+    const queryString = new URLSearchParams(
+      Object.entries(params).filter(([_, v]) => v !== undefined).map(([k, v]) => [
+        k,
+        String(v)
+      ]) as [string, string][]
+    ).toString()
+    return this.request<DataQualityResponse>(`/api/v1/analytics/data-quality?${queryString}`)
   }
 }
 

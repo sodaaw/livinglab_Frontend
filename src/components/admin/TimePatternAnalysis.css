@@ -8,11 +8,35 @@
   gap: var(--spacing-3xl);
 }
 
+.time-pattern-carousel-container {
+  position: relative;
+  width: 100%;
+}
+
+.time-pattern-carousel-viewport {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.time-pattern-carousel-track {
+  display: flex;
+  will-change: transform;
+}
+
+.time-pattern-carousel-page {
+  min-width: 100%;
+  width: 100%;
+  flex-shrink: 0;
+}
+
 .pattern-item {
-  padding: var(--spacing-xl);
+  padding: var(--spacing-lg);
   background-color: var(--bg-primary);
   border: 1px solid var(--border-subtle);
   border-radius: 8px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .pattern-header {
@@ -20,7 +44,7 @@
   justify-content: space-between;
   align-items: flex-start;
   gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-xl);
+  margin-bottom: var(--spacing-lg);
   flex-wrap: wrap;
 }
 
@@ -40,8 +64,8 @@
 
 .pattern-charts {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: var(--spacing-xl);
+  grid-template-columns: 1.5fr 1fr;
+  gap: var(--spacing-md);
 }
 
 .chart-section {
@@ -49,6 +73,11 @@
   flex-direction: column;
   gap: var(--spacing-sm);
   min-height: 0;
+}
+
+.chart-section .chart-title {
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-xs);
 }
 
 .chart-title {
@@ -91,6 +120,19 @@
 @media (max-width: 1024px) {
   .pattern-charts {
     grid-template-columns: 1fr;
+  }
+  
+  .carousel-nav-button {
+    width: 40px !important;
+    height: 40px !important;
+  }
+  
+  .carousel-nav-prev {
+    left: 8px !important;
+  }
+  
+  .carousel-nav-next {
+    right: 8px !important;
   }
 }
 

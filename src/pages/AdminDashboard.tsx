@@ -7,7 +7,7 @@ import TimePatternAnalysis from '../components/admin/TimePatternAnalysis'
 import DetectionSection from '../components/admin/DetectionSection'
 import SiteGuide, { GuideStep } from '../components/public/SiteGuide'
 import UCIInfoModal from '../components/UCIInfoModal'
-import { apiClient, getTodayDateString } from '../utils/api'
+import { apiClient, getTodayDateString, formatDateToString, subtractDays, DataQualityResponse } from '../utils/api'
 import { useScrollSpy } from '../hooks/useScrollSpy'
 import './AdminDashboard.css'
 
@@ -49,6 +49,8 @@ const AdminDashboard = () => {
 
   // 핵심 액션 요약 데이터
   const [isUCIInfoOpen, setIsUCIInfoOpen] = useState(false)
+  const [dataQuality, setDataQuality] = useState<DataQualityResponse | null>(null)
+  const [showDataQualityDetails, setShowDataQualityDetails] = useState(false)
 
   // 핵심 액션 요약 데이터
   const [criticalActions, setCriticalActions] = useState({
@@ -156,6 +158,28 @@ const AdminDashboard = () => {
     fetchCriticalActions()
   }, [])
 
+  // 데이터 품질 정보 가져오기
+  useEffect(() => {
+    const fetchDataQuality = async () => {
+      try {
+        const endDate = getTodayDateString()
+        const startDate = formatDateToString(subtractDays(new Date(), 30))
+        
+        const quality = await apiClient.getDataQuality({
+          start_date: startDate,
+          end_date: endDate
+        })
+        
+        setDataQuality(quality)
+      } catch (err) {
+        console.error('❌ 데이터 품질 정보 로딩 실패:', err)
+        // 에러 발생 시 무시 (데이터 품질 배지는 선택적)
+      }
+    }
+
+    fetchDataQuality()
+  }, [])
+
   const guideSteps: GuideStep[] = [
     {
       step: 1,
@@ -236,6 +260,105 @@ const AdminDashboard = () => {
           steps={guideSteps}
           onUCIInfoClick={() => setIsUCIInfoOpen(true)}
         />
+
+        {/* 데이터 품질 배지 */}
+        {dataQuality && dataQuality.success && (
+          <div style={{ 
+            marginBottom: '24px',
+            padding: '12px 16px',
+            backgroundColor: 'var(--bg-secondary)',
+            borderRadius: '8px',
+            border: '1px solid var(--border-subtle)',
+            cursor: 'pointer'
+          }} onClick={() => setShowDataQualityDetails(!showDataQualityDetails)}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-secondary)' }}>
+                  데이터 품질
+                </span>
+                {dataQuality.quality_score !== undefined && (
+                  <span style={{ 
+                    fontSize: 'var(--font-size-base)', 
+                    fontWeight: 'var(--font-weight-bold)',
+                    color: dataQuality.quality_score >= 80 ? 'var(--status-success-strong)' :
+                           dataQuality.quality_score >= 60 ? 'var(--status-warning-text)' :
+                           'var(--status-attention-strong)'
+                  }}>
+                    {dataQuality.quality_score.toFixed(2)}점
+                  </span>
+                )}
+                {dataQuality.missing_data_points !== undefined && (
+                  <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-secondary)' }}>
+                    · 결측 {dataQuality.missing_data_points}건
+                  </span>
+                )}
+                {dataQuality.outliers_detected !== undefined && (
+                  <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-secondary)' }}>
+                    · 이상치 {dataQuality.outliers_detected}건
+                  </span>
+                )}
+                {dataQuality.date_range?.start && dataQuality.date_range?.end && (
+                  <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-secondary)' }}>
+                    ({dataQuality.date_range.start} ~ {dataQuality.date_range.end})
+                  </span>
+                )}
+              </div>
+              <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-secondary)' }}>
+                {showDataQualityDetails ? '▼' : '▶'}
+              </span>
+            </div>
+            {showDataQualityDetails && (
+              <div style={{ 
+                marginTop: '16px', 
+                paddingTop: '16px', 
+                borderTop: '1px solid var(--border-subtle)'
+              }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+                  {dataQuality.completeness_score !== undefined && (
+                    <div>
+                      <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                        완전성 점수
+                      </div>
+                      <div style={{ fontSize: 'var(--font-size-lg)', fontWeight: 'var(--font-weight-bold)' }}>
+                        {dataQuality.completeness_score.toFixed(2)}점
+                      </div>
+                    </div>
+                  )}
+                  {dataQuality.unit_id && (
+                    <div>
+                      <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                        지역 ID
+                      </div>
+                      <div style={{ fontSize: 'var(--font-size-base)' }}>
+                        {dataQuality.unit_id}
+                      </div>
+                    </div>
+                  )}
+                  {dataQuality.report_date && (
+                    <div>
+                      <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                        리포트 생성일
+                      </div>
+                      <div style={{ fontSize: 'var(--font-size-base)' }}>
+                        {dataQuality.report_date}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {dataQuality.details && (dataQuality.details.human_signals || dataQuality.details.population_signals || dataQuality.details.comfort_index) && (
+                  <div style={{ marginTop: '16px' }}>
+                    <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-secondary)', marginBottom: '8px' }}>
+                      세부 정보
+                    </div>
+                    <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--text-secondary)', fontFamily: 'monospace' }}>
+                      {JSON.stringify(dataQuality.details, null, 2)}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* 핵심 액션 요약 섹션 */}
         <div className="critical-actions-summary">

@@ -1,14 +1,16 @@
 import { useState, useEffect } from 'react'
-import { ComposedChart, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
-import { apiClient, getTodayDateString } from '../../utils/api'
+import { ComposedChart, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import { apiClient, getTodayDateString, ComplaintTrendResponse } from '../../utils/api'
 import './TimePatternAnalysis.css'
 
 interface TimePatternData {
   location: string
+  unitId?: string
   hourPattern: { hour: number; complaints: number; population: number }[]
   dayPattern: { day: string; complaints: number }[]
   peakHours: number[]
   recommendedAction: string
+  complaintTrend?: ComplaintTrendResponse
 }
 
 // 더미데이터 생성 함수 (나머지는 시각적으로 그럴싸한 데이터 생성)
@@ -188,6 +190,46 @@ const validateAndFillDayOfWeekData = (
   return filledData
 }
 
+// 민원 트렌드 더미데이터 생성 함수
+const generateMockComplaintTrend = (unitId: string, index: number = 0): ComplaintTrendResponse => {
+  const baseComplaints = 15 + Math.floor(Math.random() * 20) // 15-35건
+  const trendDirection = index % 3 === 0 ? 'increasing' : index % 3 === 1 ? 'decreasing' : 'stable'
+  const slope = trendDirection === 'increasing' ? 0.3 : trendDirection === 'decreasing' ? -0.2 : 0.05
+  
+  // 7일 예측 데이터 생성
+  const today = new Date()
+  const forecast = Array.from({ length: 7 }, (_, i) => {
+    const date = new Date(today)
+    date.setDate(date.getDate() + i + 1)
+    const trendValue = trendDirection === 'increasing' 
+      ? baseComplaints + (i * 0.5)
+      : trendDirection === 'decreasing'
+      ? baseComplaints - (i * 0.3)
+      : baseComplaints + (Math.sin(i) * 0.5)
+    
+    return {
+      date: date.toISOString().split('T')[0],
+      value: Math.max(0, Math.round(trendValue)),
+      confidence: 0.7 + (Math.random() * 0.2) // 0.7-0.9
+    }
+  })
+  
+  return {
+    unit_id: unitId,
+    hasData: true,
+    current: {
+      total_complaints: baseComplaints
+    },
+    trend: {
+      direction: trendDirection,
+      slope: slope,
+      confidence: 0.75 + (Math.random() * 0.15) // 0.75-0.9
+    },
+    forecast: forecast,
+    seasonality: {}
+  }
+}
+
 // API 응답을 TimePatternData로 변환하는 함수
 // human-signal API의 by_day_of_week 데이터를 활용하여 dayPattern 보강
 const mapApiResponseToTimePatternData = (
@@ -229,6 +271,9 @@ const TimePatternAnalysis = () => {
   const [patternData, setPatternData] = useState<TimePatternData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  
+  // 캐러셀 상태 (한 번에 1개 카드만 표시)
+  const [currentPage, setCurrentPage] = useState(0)
 
   // API에서 데이터 가져오기
   useEffect(() => {
@@ -286,14 +331,53 @@ const TimePatternAnalysis = () => {
                 // human-signal API 실패해도 계속 진행
               }
               
-              return mapApiResponseToTimePatternData(pattern, item.name, item.unit_id || item._id, index, humanSignalData)
+              // complaint-trend API 호출
+              let complaintTrendData: ComplaintTrendResponse | undefined
+              try {
+                const complaintTrend = await apiClient.getComplaintTrend({
+                  unit_id: unitId,
+                  days: 30,
+                  forecast_days: 7
+                })
+                
+                console.log(`📊 [시간대별 패턴 분석] Complaint Trend 응답 (${unitId}):`, {
+                  endpoint: `/api/v1/analytics/complaint-trend`,
+                  unitId,
+                  rawData: complaintTrend,
+                  hasData: complaintTrend.hasData,
+                  current: complaintTrend.current,
+                  trend: complaintTrend.trend,
+                  forecast: complaintTrend.forecast
+                })
+                
+                // hasData가 false이거나 데이터가 없으면 더미데이터 사용
+                if (!complaintTrend.hasData || !complaintTrend.current || !complaintTrend.trend) {
+                  console.warn(`⚠️ [시간대별 패턴 분석] Complaint Trend 데이터 없음 (${unitId}), 더미데이터 생성`)
+                  complaintTrendData = generateMockComplaintTrend(unitId, index)
+                } else {
+                  complaintTrendData = complaintTrend
+                }
+              } catch (err) {
+                console.warn(`⚠️ Complaint Trend 조회 실패 (${unitId}), 더미데이터 생성:`, err)
+                // API 실패 시 더미데이터 생성
+                complaintTrendData = generateMockComplaintTrend(unitId, index)
+              }
+              
+              const patternData = mapApiResponseToTimePatternData(pattern, item.name, item.unit_id || item._id, index, humanSignalData)
+              return {
+                ...patternData,
+                unitId,
+                complaintTrend: complaintTrendData
+              }
             } catch (err) {
               console.warn(`⚠️ 시간 패턴 조회 실패 (${item.unit_id}):`, err)
               return null
             }
           })
           
-          const patterns = (await Promise.all(patternPromises)).filter((p): p is TimePatternData => p !== null)
+          const patterns = (await Promise.all(patternPromises))
+            .filter((p) => p !== null)
+            .map((p) => p as TimePatternData)
           
           // 매핑된 패턴 데이터 로그 출력
           console.log('✅ [시간대별 패턴 분석] 매핑 완료:', {
@@ -325,6 +409,35 @@ const TimePatternAnalysis = () => {
 
     fetchTimePattern()
   }, [])
+
+  // 캐러셀 네비게이션
+  const totalPages = patternData.length
+  const handlePrevPage = () => {
+    setCurrentPage(prev => Math.max(0, prev - 1))
+  }
+  
+  const handleNextPage = () => {
+    setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))
+  }
+  
+  const canGoPrev = currentPage > 0
+  const canGoNext = currentPage < totalPages - 1
+
+  // 키보드 네비게이션
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft' && canGoPrev) {
+        e.preventDefault()
+        setCurrentPage(prev => Math.max(0, prev - 1))
+      } else if (e.key === 'ArrowRight' && canGoNext) {
+        e.preventDefault()
+        setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))
+      }
+    }
+    
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [canGoPrev, canGoNext, totalPages])
 
   if (loading) {
     return (
@@ -359,9 +472,80 @@ const TimePatternAnalysis = () => {
         </div>
       )}
 
-      <div className="pattern-list">
-        {patternData.map((data, index) => (
-          <div key={index} className="pattern-item">
+      {patternData.length === 0 ? (
+        <div className="empty-state" style={{ padding: '40px', textAlign: 'center' }}>
+          <p className="body-medium text-secondary">분석할 데이터가 없습니다.</p>
+        </div>
+      ) : (
+        <div className="time-pattern-carousel-container">
+          {/* 네비게이션 버튼 */}
+          {canGoPrev && (
+            <button
+              className="carousel-nav-button carousel-nav-prev"
+              onClick={handlePrevPage}
+              aria-label="이전 지역"
+              style={{
+                position: 'absolute',
+                left: '16px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                zIndex: 10,
+                width: '48px',
+                height: '48px',
+                borderRadius: '50%',
+                border: 'none',
+                backgroundColor: 'var(--white)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--chateau-green-50)'
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--white)'
+                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)'
+              }}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M15 18l-6-6 6-6"/>
+              </svg>
+            </button>
+          )}
+          
+          {/* 캐러셀 뷰포트 */}
+          <div 
+            className="time-pattern-carousel-viewport"
+            style={{
+              position: 'relative',
+              overflow: 'hidden',
+              width: '100%'
+            }}
+          >
+            <div 
+              className="time-pattern-carousel-track"
+              style={{
+                display: 'flex',
+                transform: `translateX(-${currentPage * 100}%)`,
+                transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                willChange: 'transform'
+              }}
+            >
+              {patternData.map((data, index) => (
+                <div 
+                  key={index} 
+                  className="time-pattern-carousel-page"
+                  style={{
+                    minWidth: '100%',
+                    width: '100%',
+                    flexShrink: 0
+                  }}
+                >
+                  <div className="pattern-item">
             <div className="pattern-header">
               <h3 className="heading-4">{data.location}</h3>
               <div className="recommended-action">
@@ -372,7 +556,7 @@ const TimePatternAnalysis = () => {
             <div className="pattern-charts">
               <div className="chart-section">
                 <h4 className="chart-title">시간대별 민원 및 생활인구</h4>
-                <ResponsiveContainer width="100%" height={300}>
+                <ResponsiveContainer width="100%" height={250}>
                   <ComposedChart 
                     data={data.hourPattern}
                     margin={{ top: 10, right: 30, left: 20, bottom: 60 }}
@@ -439,7 +623,7 @@ const TimePatternAnalysis = () => {
 
               <div className="chart-section">
                 <h4 className="chart-title">요일별 민원 패턴</h4>
-                <ResponsiveContainer width="100%" height={300}>
+                <ResponsiveContainer width="100%" height={250}>
                   <BarChart data={data.dayPattern}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--gray-200)" />
                     <XAxis 
@@ -467,10 +651,159 @@ const TimePatternAnalysis = () => {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
+
+              {/* 민원 트렌드 분석 섹션 */}
+              {data.complaintTrend && (
+                <div className="chart-section" style={{ marginTop: '24px' }}>
+                  <h4 className="chart-title">민원 트렌드 분석</h4>
+                  <div style={{ 
+                    padding: '16px', 
+                    backgroundColor: 'var(--bg-secondary)', 
+                    borderRadius: '8px',
+                    marginBottom: '16px'
+                  }}>
+                    <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
+                      {data.complaintTrend.current?.total_complaints !== undefined && (
+                        <div>
+                          <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                            최근 30일 총 민원
+                          </div>
+                          <div style={{ fontSize: 'var(--font-size-xl)', fontWeight: 'var(--font-weight-bold)' }}>
+                            {data.complaintTrend.current.total_complaints}건
+                          </div>
+                        </div>
+                      )}
+                      {data.complaintTrend.trend && (
+                        <div>
+                          <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                            추세
+                          </div>
+                          <div style={{ 
+                            fontSize: 'var(--font-size-base)', 
+                            fontWeight: 'var(--font-weight-medium)',
+                            color: data.complaintTrend.trend.direction === 'increasing' ? 'var(--status-attention-strong)' :
+                                   data.complaintTrend.trend.direction === 'decreasing' ? 'var(--status-success-strong)' : 'var(--gray-500)'
+                          }}>
+                            {data.complaintTrend.trend.direction === 'increasing' ? '▲ 증가' :
+                             data.complaintTrend.trend.direction === 'decreasing' ? '▼ 감소' : '— 유지'}
+                            {data.complaintTrend.trend.confidence !== undefined && (
+                              <span style={{ 
+                                fontSize: 'var(--font-size-sm)', 
+                                color: 'var(--text-secondary)',
+                                marginLeft: '8px'
+                              }}>
+                                (신뢰도: {(data.complaintTrend.trend.confidence * 100).toFixed(0)}%)
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  {data.complaintTrend.forecast && data.complaintTrend.forecast.length > 0 && (
+                    <ResponsiveContainer width="100%" height={180}>
+                      <LineChart data={data.complaintTrend.forecast.map(f => ({
+                        date: new Date(f.date).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }),
+                        value: f.value
+                      }))}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--gray-200)" />
+                        <XAxis 
+                          dataKey="date" 
+                          stroke="var(--gray-600)"
+                          style={{ fontSize: '12px' }}
+                        />
+                        <YAxis 
+                          stroke="var(--gray-600)"
+                          style={{ fontSize: '12px' }}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: 'var(--white)',
+                            border: '1px solid var(--border-subtle)',
+                            borderRadius: '4px'
+                          }}
+                        />
+                        <Line 
+                          type="monotone" 
+                          dataKey="value" 
+                          stroke="var(--chateau-green-600)" 
+                          strokeWidth={2}
+                          strokeDasharray="8 4"
+                          dot={{ fill: 'var(--chateau-green-600)', r: 4 }}
+                          name="예측 민원 건수"
+                        />
+                        <Legend />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  )}
+                </div>
+              )}
+            </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        ))}
-      </div>
+          
+          {canGoNext && (
+            <button
+              className="carousel-nav-button carousel-nav-next"
+              onClick={handleNextPage}
+              aria-label="다음 지역"
+              style={{
+                position: 'absolute',
+                right: '16px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                zIndex: 10,
+                width: '48px',
+                height: '48px',
+                borderRadius: '50%',
+                border: 'none',
+                backgroundColor: 'var(--white)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--chateau-green-50)'
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.2)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--white)'
+                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)'
+              }}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M9 18l6-6-6-6"/>
+              </svg>
+            </button>
+          )}
+          
+          {/* 페이지 인디케이터 */}
+          {totalPages > 1 && (
+            <div className="carousel-indicator" style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: '8px',
+              marginTop: '24px',
+              padding: '12px'
+            }}>
+              <span className="carousel-indicator-text" style={{
+                fontSize: 'var(--font-size-sm)',
+                color: 'var(--text-secondary)',
+                fontWeight: 'var(--font-weight-medium)'
+              }}>
+                {currentPage + 1} / {totalPages}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

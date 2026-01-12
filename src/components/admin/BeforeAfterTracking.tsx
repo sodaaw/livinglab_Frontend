@@ -195,24 +195,6 @@ const BeforeAfterTracking = () => {
     fetchInterventions()
   }, [])
 
-  const formatChartData = (data: TrackingData) => {
-    // 개입일을 기준으로 데이터 분리
-    const interventionDate = data.interventionDate.substring(0, 7) // YYYY-MM 형식
-    
-    // 개입 전 데이터 (개입일 포함)
-    const beforeData = [
-      ...data.beforeData,
-      // 개입일 시점의 데이터를 개입 전에도 포함 (연결을 위해)
-      ...data.afterData.filter(d => d.date === interventionDate).map(d => ({ ...d, isInterventionPoint: true }))
-    ].map((d) => ({ ...d, type: 'before' as const }))
-    
-    // 개입 후 데이터 (개입일 포함)
-    const afterData = data.afterData.map((d) => ({ ...d, type: 'after' as const }))
-    
-    // 전체 데이터 (범례용)
-    return [...beforeData, ...afterData].sort((a, b) => a.date.localeCompare(b.date))
-  }
-  
   const getBeforeData = (data: TrackingData) => {
     const interventionDate = data.interventionDate.substring(0, 7)
     return [

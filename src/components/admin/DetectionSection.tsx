@@ -103,6 +103,66 @@ const mockBlindSpots: BlindSpot[] = [
       pigeon: { detected: false, intensity: null }
     },
     recommendedAction: '구조 취약성과 신호 불일치 원인 분석을 권장합니다'
+  },
+  {
+    id: 'bs3',
+    location: '서울시 종로구 혜화동 56-78',
+    lat: 37.5860,
+    lng: 127.0015,
+    riskLevel: 'low',
+    detectionReason: '모든 신호가 일치하나 비둘기 신호만 약함',
+    signals: {
+      human: { value: 8, status: 'normal' },
+      geo: { value: 4.5, status: 'normal' },
+      population: { value: 520, status: 'normal' },
+      pigeon: { detected: true, intensity: 'low' }
+    },
+    recommendedAction: '지속 모니터링 권장'
+  },
+  {
+    id: 'bs4',
+    location: '서울시 서초구 반포동 123-45',
+    lat: 37.5045,
+    lng: 127.0065,
+    riskLevel: 'high',
+    detectionReason: '인구 신호는 높으나 민원이 전혀 없어, 신고 체계의 사각지대 가능성',
+    signals: {
+      human: { value: 1, status: 'low' },
+      geo: { value: 7.8, status: 'high' },
+      population: { value: 680, status: 'high' },
+      pigeon: { detected: true, intensity: 'medium' }
+    },
+    recommendedAction: '민원 접수 경로 확인 및 현장 조사 필요'
+  },
+  {
+    id: 'bs5',
+    location: '서울시 송파구 잠실동 234-56',
+    lat: 37.5133,
+    lng: 127.1028,
+    riskLevel: 'medium',
+    detectionReason: '지리적 취약도와 실제 민원 발생 간 불일치 감지',
+    signals: {
+      human: { value: 5, status: 'normal' },
+      geo: { value: 9.1, status: 'high' },
+      population: { value: 420, status: 'normal' },
+      pigeon: { detected: false, intensity: null }
+    },
+    recommendedAction: '구조적 취약점 재평가 및 예방 조치 검토'
+  },
+  {
+    id: 'bs6',
+    location: '서울시 영등포구 여의도동 67-89',
+    lat: 37.5264,
+    lng: 126.9242,
+    riskLevel: 'low',
+    detectionReason: '비둘기 신호만 감지되나 다른 신호와의 연관성 낮음',
+    signals: {
+      human: { value: 4, status: 'normal' },
+      geo: { value: 5.2, status: 'normal' },
+      population: { value: 350, status: 'low' },
+      pigeon: { detected: true, intensity: 'high' }
+    },
+    recommendedAction: '비둘기 신호의 독립성 검증 및 추가 관찰'
   }
 ]
 
@@ -140,6 +200,91 @@ const mockAnomalies: Anomaly[] = [
     name: '서울시 강남구',
     lat: 37.5172,
     lng: 127.0473
+  },
+  {
+    unit_id: '11200',
+    date: getTodayDateString(),
+    anomaly_score: 0.68,
+    anomaly_flag: true,
+    explanation: '비정상적인 패턴 감지 - 추가 조사 권장',
+    features: {
+      complaint_change_4w: 0.25,
+      complaint_growth_rate: 0.18
+    },
+    stats: {
+      z_score: 2.5
+    },
+    name: '서울시 성동구',
+    lat: 37.5634,
+    lng: 127.0366
+  },
+  {
+    unit_id: '11500',
+    date: getTodayDateString(),
+    anomaly_score: 0.91,
+    anomaly_flag: true,
+    explanation: '민원 급증 및 Z-score 3.8로 매우 높은 이상치 - 즉시 조치 필요',
+    features: {
+      complaint_change_4w: 0.62,
+      complaint_growth_rate: 0.48
+    },
+    stats: {
+      z_score: 3.8
+    },
+    name: '서울시 강서구',
+    lat: 37.5509,
+    lng: 126.8495
+  },
+  {
+    unit_id: '11320',
+    date: getTodayDateString(),
+    anomaly_score: 0.65,
+    anomaly_flag: true,
+    explanation: '주말 집중 민원 패턴과 평일 대비 2.3배 증가 - 시간대별 분석 필요',
+    features: {
+      complaint_change_4w: 0.22,
+      complaint_growth_rate: 0.15
+    },
+    stats: {
+      z_score: 2.3
+    },
+    name: '서울시 도봉구',
+    lat: 37.6688,
+    lng: 127.0471
+  },
+  {
+    unit_id: '11440',
+    date: getTodayDateString(),
+    anomaly_score: 0.78,
+    anomaly_flag: true,
+    explanation: '야간 시간대 민원 집중 발생 - 시간대별 모니터링 강화 권장',
+    features: {
+      complaint_change_4w: 0.35,
+      complaint_growth_rate: 0.26
+    },
+    stats: {
+      z_score: 3.0
+    },
+    name: '서울시 마포구',
+    lat: 37.5663,
+    lng: 126.9019
+  },
+  {
+    unit_id: '11710',
+    date: getTodayDateString(),
+    anomaly_score: 0.59,
+    anomaly_flag: true,
+    explanation: '계절적 변화 패턴과 다른 이상 신호 - 장기 추세 분석 필요',
+    features: {
+      complaint_change_4w: 0.18,
+      complaint_growth_rate: 0.12
+    },
+    stats: {
+      z_score: 2.1
+    },
+    name: '서울시 송파구',
+    lat: 37.5145,
+    lng: 127.1058
   }
 ]
 
@@ -204,6 +349,9 @@ const DetectionSection = ({ initialTab }: DetectionSectionProps) => {
   // 모달 상태
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null)
   const [selectedDate, setSelectedDate] = useState<string | undefined>(undefined)
+  
+  // 캐러셀 상태
+  const [currentIndex, setCurrentIndex] = useState(0)
 
   // URL query 업데이트
   useEffect(() => {
@@ -293,6 +441,11 @@ const DetectionSection = ({ initialTab }: DetectionSectionProps) => {
     fetchAnomalies()
   }, [activeTab])
 
+  // 탭 전환 시 캐러셀 인덱스 리셋
+  useEffect(() => {
+    setCurrentIndex(0)
+  }, [activeTab])
+
   // 탭 전환 핸들러 (키보드 접근성)
   const handleTabKeyDown = (e: React.KeyboardEvent, targetTab: DetectionType) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -312,6 +465,35 @@ const DetectionSection = ({ initialTab }: DetectionSectionProps) => {
       setActiveTab('anomaly')
     }
   }
+  
+  // 현재 탭의 데이터 개수
+  const currentDataCount = activeTab === 'blindspot' ? blindSpots.length : anomalies.length
+  // 반응형: 모바일에서는 1개, 데스크톱에서는 2개
+  const [cardsPerPage, setCardsPerPage] = useState(2)
+  
+  useEffect(() => {
+    const updateCardsPerPage = () => {
+      setCardsPerPage(window.innerWidth <= 1024 ? 1 : 2)
+    }
+    
+    updateCardsPerPage()
+    window.addEventListener('resize', updateCardsPerPage)
+    return () => window.removeEventListener('resize', updateCardsPerPage)
+  }, [])
+  
+  const maxIndex = Math.max(0, currentDataCount - cardsPerPage)
+  
+  // 캐러셀 네비게이션
+  const handlePrev = () => {
+    setCurrentIndex(prev => Math.max(0, prev - cardsPerPage))
+  }
+  
+  const handleNext = () => {
+    setCurrentIndex(prev => Math.min(maxIndex, prev + cardsPerPage))
+  }
+  
+  const canGoPrev = currentIndex > 0
+  const canGoNext = currentIndex < maxIndex
 
   const loading = activeTab === 'blindspot' ? blindSpotLoading : anomalyLoading
   const error = activeTab === 'blindspot' ? blindSpotError : anomalyError
@@ -417,34 +599,75 @@ const DetectionSection = ({ initialTab }: DetectionSectionProps) => {
               </div>
             )}
 
-            {/* 결과 카드 리스트 */}
-            <div className="detection-list">
-              {activeTab === 'blindspot' ? (
-                blindSpots.length === 0 ? (
-                  <div className="empty-state">
-                    <p className="body-medium text-secondary">사각지대가 탐지된 지역이 없습니다.</p>
-                  </div>
-                ) : (
-                  <BlindSpotCards 
-                    blindSpots={blindSpots}
-                  />
-                )
-              ) : (
-                anomalies.length === 0 ? (
-                  <div className="empty-state">
-                    <p className="body-medium text-secondary">이상 탐지된 지역이 없습니다.</p>
-                  </div>
-                ) : (
-                  <AnomalyCards
-                    anomalies={anomalies}
-                    onAnomalyClick={(anomaly) => {
-                      setSelectedUnitId(anomaly.unit_id)
-                      setSelectedDate(anomaly.date)
+            {/* 결과 카드 리스트 (캐러셀) */}
+            {currentDataCount === 0 ? (
+              <div className="empty-state">
+                <p className="body-medium text-secondary">
+                  {activeTab === 'blindspot' 
+                    ? '사각지대가 탐지된 지역이 없습니다.'
+                    : '이상 탐지된 지역이 없습니다.'}
+                </p>
+              </div>
+            ) : (
+              <div className="detection-carousel-container">
+                {canGoPrev && (
+                  <button
+                    className="carousel-nav-button carousel-nav-prev"
+                    onClick={handlePrev}
+                    aria-label="이전 카드"
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M15 18l-6-6 6-6"/>
+                    </svg>
+                  </button>
+                )}
+                
+                <div className="detection-carousel-wrapper">
+                  <div 
+                    className="detection-list"
+                    style={{
+                      transform: `translateX(calc(-${currentIndex} * (100% / ${cardsPerPage})))`,
+                      transition: 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
                     }}
-                  />
-                )
-              )}
-            </div>
+                  >
+                    {activeTab === 'blindspot' ? (
+                      <BlindSpotCards 
+                        blindSpots={blindSpots}
+                      />
+                    ) : (
+                      <AnomalyCards
+                        anomalies={anomalies}
+                        onAnomalyClick={(anomaly) => {
+                          setSelectedUnitId(anomaly.unit_id)
+                          setSelectedDate(anomaly.date)
+                        }}
+                      />
+                    )}
+                  </div>
+                </div>
+                
+                {canGoNext && (
+                  <button
+                    className="carousel-nav-button carousel-nav-next"
+                    onClick={handleNext}
+                    aria-label="다음 카드"
+                  >
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M9 18l6-6-6-6"/>
+                    </svg>
+                  </button>
+                )}
+                
+                {/* 인디케이터 */}
+                {currentDataCount > cardsPerPage && (
+                  <div className="carousel-indicator">
+                    <span className="carousel-indicator-text">
+                      {Math.floor(currentIndex / cardsPerPage) + 1} / {Math.ceil(currentDataCount / cardsPerPage)}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
           </>
         )}
       </div>

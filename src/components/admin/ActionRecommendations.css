@@ -111,18 +111,18 @@
   border: 1px solid var(--color-severity-immediate-border);
 }
 
-/* 시급도: 단기 = 주황 계열 */
+/* 시급도: 단기 = 노란색 */
 .urgency-badge[data-urgency="short-term"] {
-  background-color: var(--color-severity-short-background);
-  color: var(--color-severity-short-text);
-  border: 1px solid var(--color-severity-short-border);
-}
-
-/* 시급도: 중기 = 노랑/옅은 앰버 계열 */
-.urgency-badge[data-urgency="medium-term"] {
   background-color: var(--color-severity-mid-background);
   color: var(--color-severity-mid-text);
   border: 1px solid var(--color-severity-mid-border);
+}
+
+/* 시급도: 중기 = 초록색 */
+.urgency-badge[data-urgency="medium-term"] {
+  background-color: var(--chateau-green-100);
+  color: var(--chateau-green-700);
+  border: 1px solid var(--chateau-green-300);
 }
 
 .intervention-type {

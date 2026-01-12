@@ -50,10 +50,101 @@
   margin-bottom: var(--spacing-2xl);
 }
 
+.detection-carousel-container {
+  position: relative;
+  width: 100%;
+}
+
+.detection-carousel-wrapper {
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+}
+
 .detection-list {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: flex;
   gap: var(--spacing-md);
+  width: max-content;
+}
+
+.detection-list .detection-item {
+  flex: 0 0 calc((100% - var(--spacing-md)) / 2);
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1024px) {
+  .detection-list .detection-item {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+
+.carousel-nav-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: var(--bg-primary);
+  border: 2px solid var(--border-subtle);
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all var(--transition-base);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.carousel-nav-button:hover {
+  background-color: var(--chateau-green-50);
+  border-color: var(--chateau-green-500);
+  color: var(--chateau-green-600);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.carousel-nav-button:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.carousel-nav-button:focus {
+  outline: 2px solid var(--chateau-green-500);
+  outline-offset: 2px;
+}
+
+.carousel-nav-prev {
+  left: -24px;
+}
+
+.carousel-nav-next {
+  right: -24px;
+}
+
+@media (max-width: 1024px) {
+  .carousel-nav-prev {
+    left: 8px;
+  }
+  
+  .carousel-nav-next {
+    right: 8px;
+  }
+}
+
+.carousel-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-xs) var(--spacing-sm);
+}
+
+.carousel-indicator-text {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
 }
 
 .detection-item {
@@ -320,6 +411,15 @@
 @media (max-width: 1024px) {
   .detection-list {
     grid-template-columns: 1fr;
+  }
+  
+  .carousel-nav-button {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .detection-carousel-wrapper {
+    overflow: hidden;
   }
 }
 

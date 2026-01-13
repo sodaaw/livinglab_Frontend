@@ -131,11 +131,10 @@ interface HumanSignalApiResponse {
 // by_day_of_week 데이터 검증 및 더미데이터 생성 함수
 const validateAndFillDayOfWeekData = (
   byDayOfWeek: { [key: string]: number } | undefined,
-  unitId: string
+  _unitId: string
 ): { [key: string]: number } => {
   // 데이터가 없거나 빈 객체인 경우
   if (!byDayOfWeek || Object.keys(byDayOfWeek).length === 0) {
-    console.warn(`⚠️ [시간대별 패턴 분석] by_day_of_week 데이터 없음 (${unitId}), 더미데이터 생성`)
     return {
       '0': Math.floor(Math.random() * 5) + 1,
       '1': Math.floor(Math.random() * 6) + 2,
@@ -150,7 +149,6 @@ const validateAndFillDayOfWeekData = (
   // 모든 값이 0인지 확인
   const allZero = Object.values(byDayOfWeek).every(val => val === 0)
   if (allZero) {
-    console.warn(`⚠️ [시간대별 패턴 분석] by_day_of_week 데이터가 모두 0 (${unitId}), 더미데이터로 채움`)
     return {
       '0': Math.floor(Math.random() * 5) + 1,
       '1': Math.floor(Math.random() * 6) + 2,
@@ -179,13 +177,7 @@ const validateAndFillDayOfWeekData = (
     }
   }
 
-  if (missingDays.length > 0 || zeroDays.length > 0) {
-    console.warn(`⚠️ [시간대별 패턴 분석] by_day_of_week 데이터 보완 (${unitId}):`, {
-      missingDays: missingDays.length > 0 ? missingDays : undefined,
-      zeroDays: zeroDays.length > 0 ? zeroDays : undefined,
-      message: `${missingDays.length > 0 ? `누락된 요일 ${missingDays.length}개` : ''}${missingDays.length > 0 && zeroDays.length > 0 ? ', ' : ''}${zeroDays.length > 0 ? `0인 요일 ${zeroDays.length}개` : ''}를 더미데이터로 채웠습니다.`
-    })
-  }
+  // 데이터 보완 완료
 
   return filledData
 }
@@ -287,27 +279,12 @@ const TimePatternAnalysis = () => {
         // 현재는 우선순위 큐의 상위 2개 지역만 조회 (실제로는 더 많은 지역 조회 가능)
         const priorityQueue = await apiClient.getPriorityQueue({ date, top_n: 2 }) as any[]
         
-        // 우선순위 큐 응답 로그 출력
-        console.log('📊 [시간대별 패턴 분석] 우선순위 큐 응답:', {
-          endpoint: '/api/v1/priority-queue',
-          date,
-          queueCount: Array.isArray(priorityQueue) ? priorityQueue.length : 0,
-          queueData: priorityQueue
-        })
         
         if (Array.isArray(priorityQueue) && priorityQueue.length > 0) {
           const patternPromises = priorityQueue.slice(0, 2).map(async (item, index) => {
             try {
               const unitId = item.unit_id || item._id
               const pattern = await apiClient.getTimePattern(unitId, { date }) as TimePatternApiResponse
-              
-              // 각 지역별 시간 패턴 API 응답 로그 출력
-              console.log(`📈 [시간대별 패턴 분석] 지역별 패턴 응답 (${unitId}):`, {
-                endpoint: `/api/v1/dashboard/time-pattern`,
-                unitId,
-                date,
-                rawData: pattern
-              })
               
               // human-signal API도 함께 호출하여 by_day_of_week 데이터 가져오기
               let humanSignalData: HumanSignalApiResponse | undefined
@@ -318,16 +295,8 @@ const TimePatternAnalysis = () => {
                   period: 'day'
                 }) as HumanSignalApiResponse
                 
-                console.log(`📊 [시간대별 패턴 분석] Human Signal 응답 (${unitId}):`, {
-                  endpoint: `/api/v1/dashboard/human-signal`,
-                  unitId,
-                  date,
-                  rawData: humanSignal
-                })
-                
                 humanSignalData = humanSignal
               } catch (err) {
-                console.warn(`⚠️ Human Signal 조회 실패 (${unitId}):`, err)
                 // human-signal API 실패해도 계속 진행
               }
               
@@ -340,25 +309,13 @@ const TimePatternAnalysis = () => {
                   forecast_days: 7
                 })
                 
-                console.log(`📊 [시간대별 패턴 분석] Complaint Trend 응답 (${unitId}):`, {
-                  endpoint: `/api/v1/analytics/complaint-trend`,
-                  unitId,
-                  rawData: complaintTrend,
-                  hasData: complaintTrend.hasData,
-                  current: complaintTrend.current,
-                  trend: complaintTrend.trend,
-                  forecast: complaintTrend.forecast
-                })
-                
                 // hasData가 false이거나 데이터가 없으면 더미데이터 사용
                 if (!complaintTrend.hasData || !complaintTrend.current || !complaintTrend.trend) {
-                  console.warn(`⚠️ [시간대별 패턴 분석] Complaint Trend 데이터 없음 (${unitId}), 더미데이터 생성`)
                   complaintTrendData = generateMockComplaintTrend(unitId, index)
                 } else {
                   complaintTrendData = complaintTrend
                 }
               } catch (err) {
-                console.warn(`⚠️ Complaint Trend 조회 실패 (${unitId}), 더미데이터 생성:`, err)
                 // API 실패 시 더미데이터 생성
                 complaintTrendData = generateMockComplaintTrend(unitId, index)
               }
@@ -370,7 +327,6 @@ const TimePatternAnalysis = () => {
                 complaintTrend: complaintTrendData
               }
             } catch (err) {
-              console.warn(`⚠️ 시간 패턴 조회 실패 (${item.unit_id}):`, err)
               return null
             }
           })
@@ -379,18 +335,10 @@ const TimePatternAnalysis = () => {
             .filter((p) => p !== null)
             .map((p) => p as TimePatternData)
           
-          // 매핑된 패턴 데이터 로그 출력
-          console.log('✅ [시간대별 패턴 분석] 매핑 완료:', {
-            patternCount: patterns.length,
-            patterns: patterns,
-            samplePattern: patterns[0] || null
-          })
-          
           if (patterns.length > 0) {
             setPatternData(patterns)
           } else {
             // API 응답이 비어있거나 형식이 다를 경우 더미데이터 사용
-            console.warn('⚠️ API 응답이 비어있거나 형식이 다릅니다. 더미데이터를 사용합니다.')
             setPatternData(mockTimePatternData)
           }
         } else {
@@ -398,7 +346,6 @@ const TimePatternAnalysis = () => {
           setPatternData(mockTimePatternData)
         }
       } catch (err) {
-        console.error('❌ 시간 패턴 분석 데이터 로딩 실패:', err)
         setError(err instanceof Error ? err.message : '데이터를 불러오는 중 오류가 발생했습니다.')
         // 에러 발생 시 더미데이터로 fallback
         setPatternData(mockTimePatternData)

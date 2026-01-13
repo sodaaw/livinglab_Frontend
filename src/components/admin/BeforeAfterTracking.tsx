@@ -90,12 +90,6 @@ const mapApiResponseToTrackingData = async (
       { baseline_weeks: 4, followup_weeks: 4 }
     ) as InterventionEffectApiResponse
     
-    // 개입 효과 원본 데이터 로그 출력
-    console.log(`📈 [개입 전후 효과 추적] 개입 효과 원본 응답 (${intervention.intervention_id}):`, {
-      endpoint: `/api/v1/dashboard/interventions/${intervention.intervention_id}/effect`,
-      interventionId: intervention.intervention_id,
-      rawEffectData: effect
-    })
 
     const beforeData = effect.baseline_data?.map(d => ({
       date: d.date.substring(0, 7), // YYYY-MM 형식으로 변환
@@ -116,7 +110,6 @@ const mapApiResponseToTrackingData = async (
       improvement: effect.improvement || 0,
     }
   } catch (err) {
-    console.warn(`⚠️ 개입 효과 조회 실패 (${intervention.intervention_id}):`, err)
     return null
   }
 }
@@ -136,14 +129,6 @@ const BeforeAfterTracking = () => {
         // 완료된 개입 사업 조회
         const interventions = await apiClient.getInterventions({ status: 'completed' }) as InterventionApiResponse[]
         
-        // 개입 사업 목록 응답 로그 출력
-        console.log('📋 [개입 전후 효과 추적] 개입 사업 목록 응답:', {
-          endpoint: '/api/v1/dashboard/interventions',
-          status: 'completed',
-          interventionCount: Array.isArray(interventions) ? interventions.length : 0,
-          rawData: interventions,
-          sampleItem: Array.isArray(interventions) && interventions.length > 0 ? interventions[0] : null
-        })
         
         if (Array.isArray(interventions) && interventions.length > 0) {
           // 상위 3개 개입만 조회 (성능 고려)
@@ -151,31 +136,15 @@ const BeforeAfterTracking = () => {
           const trackingPromises = topInterventions.map(async (intervention) => {
             const result = await mapApiResponseToTrackingData(intervention)
             
-            // 각 개입별 효과 데이터 로그 출력
-            if (result) {
-              console.log(`📊 [개입 전후 효과 추적] 개입 효과 응답 (${intervention.intervention_id}):`, {
-                endpoint: `/api/v1/dashboard/interventions/${intervention.intervention_id}/effect`,
-                interventionId: intervention.intervention_id,
-                effectData: result
-              })
-            }
             
             return result
           })
           const trackingResults = (await Promise.all(trackingPromises)).filter((t): t is TrackingData => t !== null)
           
-          // 매핑된 추적 데이터 로그 출력
-          console.log('✅ [개입 전후 효과 추적] 매핑 완료:', {
-            trackingCount: trackingResults.length,
-            trackingResults: trackingResults,
-            sampleTrackingItem: trackingResults[0] || null
-          })
-          
           if (trackingResults.length > 0) {
             setTrackingData(trackingResults)
           } else {
             // API 응답이 비어있거나 형식이 다를 경우 더미데이터 사용
-            console.warn('⚠️ API 응답이 비어있거나 형식이 다릅니다. 더미데이터를 사용합니다.')
             setTrackingData(mockTrackingData)
           }
         } else {
@@ -183,7 +152,6 @@ const BeforeAfterTracking = () => {
           setTrackingData(mockTrackingData)
         }
       } catch (err) {
-        console.error('❌ 개입 전후 효과 추적 데이터 로딩 실패:', err)
         setError(err instanceof Error ? err.message : '데이터를 불러오는 중 오류가 발생했습니다.')
         // 에러 발생 시 더미데이터로 fallback
         setTrackingData(mockTrackingData)

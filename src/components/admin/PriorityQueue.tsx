@@ -535,26 +535,6 @@ const PriorityQueue = () => {
           apiClient.getAnomalies({ date }).catch(() => null) as Promise<AnomaliesApiResponse | null>
         ])
         
-        // 백엔드에서 받은 원본 데이터 로그 출력
-        console.log('📊 [우선순위 검사 대기열] 백엔드 API 응답:', {
-          endpoint: '/api/v1/priority-queue',
-          date,
-          responseCount: Array.isArray(priorityQueueResponse) ? priorityQueueResponse.length : 0,
-          rawData: priorityQueueResponse,
-          sampleItem: Array.isArray(priorityQueueResponse) && priorityQueueResponse.length > 0 ? priorityQueueResponse[0] : null
-        })
-        
-        // 이상 탐지 데이터 로그 출력
-        if (anomaliesResponse) {
-          console.log('📊 [우선순위 검사 대기열] 이상 탐지 API 응답:', {
-            endpoint: '/api/v1/anomaly',
-            date,
-            total: anomaliesResponse.total || 0,
-            anomaly_count: anomaliesResponse.anomaly_count || 0,
-            results: anomaliesResponse.results || []
-          })
-        }
-        
         // 이상 탐지 데이터를 unit_id를 키로 하는 Map으로 변환
         const anomalyMap = new Map<string, AnomalyApiResponse>()
         if (anomaliesResponse?.results && Array.isArray(anomaliesResponse.results)) {
@@ -585,14 +565,6 @@ const PriorityQueue = () => {
             return mappedItem
           })
           
-          // 매핑된 데이터 로그 출력
-          console.log('✅ [우선순위 검사 대기열] 매핑 완료:', {
-            mappedCount: mappedItems.length,
-            mappedItems: mappedItems,
-            sampleMappedItem: mappedItems[0] || null,
-            anomalyDataCount: anomalyMap.size
-          })
-          
           setItems(mappedItems)
           // 첫 번째 항목 선택
           if (mappedItems.length > 0) {
@@ -600,12 +572,10 @@ const PriorityQueue = () => {
           }
         } else {
           // API 응답이 비어있거나 형식이 다를 경우 더미데이터 사용
-          console.warn('⚠️ API 응답이 비어있거나 형식이 다릅니다. 더미데이터를 사용합니다.')
           setItems(mockData)
           setSelectedLocationId(mockData[0]?.id)
         }
       } catch (err) {
-        console.error('❌ 우선순위 큐 데이터 로딩 실패:', err)
         setError(err instanceof Error ? err.message : '데이터를 불러오는 중 오류가 발생했습니다.')
         // 에러 발생 시 더미데이터로 fallback
         setItems(mockData)
@@ -654,7 +624,7 @@ const PriorityQueue = () => {
   }
 
   // Human Signal 데이터 검증 및 더미데이터 보완 함수
-  const validateAndFillHumanSignalData = (data: HumanSignalApiResponse, unitId: string): HumanSignalApiResponse => {
+  const validateAndFillHumanSignalData = (data: HumanSignalApiResponse, _unitId: string): HumanSignalApiResponse => {
     const filledData = { ...data }
     const missingFields: string[] = []
     const zeroFields: string[] = []
@@ -769,17 +739,7 @@ const PriorityQueue = () => {
       })
     }
 
-    // 콘솔 로그 출력
-    if (missingFields.length > 0 || zeroFields.length > 0) {
-      console.warn(`⚠️ [우선순위 검사 대기열] Human Signal 데이터 보완 (${unitId}):`, {
-        endpoint: '/api/v1/dashboard/human-signal',
-        unitId,
-        missingFields: missingFields.length > 0 ? missingFields : undefined,
-        zeroFields: zeroFields.length > 0 ? zeroFields : undefined,
-        message: `${missingFields.length > 0 ? `누락된 필드 ${missingFields.length}개` : ''}${missingFields.length > 0 && zeroFields.length > 0 ? ', ' : ''}${zeroFields.length > 0 ? `0인 필드 ${zeroFields.length}개` : ''}를 더미데이터로 채웠습니다.`,
-        filledData
-      })
-    }
+    // 데이터 보완 완료
 
     return filledData
   }
@@ -806,24 +766,11 @@ const PriorityQueue = () => {
           period: 'day'
         }) as HumanSignalApiResponse
 
-        console.log('📊 [우선순위 검사 대기열] Human Signal API 응답:', {
-          endpoint: '/api/v1/dashboard/human-signal',
-          unitId,
-          location: selectedItem?.location || '위치 정보 없음',
-          date,
-          response
-        })
-
         // 데이터 검증 및 더미데이터 보완
         const validatedData = validateAndFillHumanSignalData(response, unitId)
         setHumanSignalData(validatedData)
       } catch (err) {
-        console.error('❌ Human Signal 데이터 로딩 실패:', err)
         // 에러 발생 시 더미데이터 사용
-        console.warn('⚠️ [우선순위 검사 대기열] Human Signal API 실패로 더미데이터 사용:', {
-          unitId: selectedLocationId,
-          error: err instanceof Error ? err.message : String(err)
-        })
         const dummyData = generateHumanSignalDummyData()
         setHumanSignalData(dummyData)
       } finally {

@@ -96,34 +96,15 @@ const AnomalyDetection = () => {
         const date = getTodayDateString()
         const response = await apiClient.getAnomalies({ date }) as Anomaly[]
         
-        // 백엔드에서 받은 원본 데이터 로그 출력
-        console.log('🔍 [이상 탐지] 백엔드 API 응답:', {
-          endpoint: '/api/v1/anomaly',
-          date,
-          responseCount: Array.isArray(response) ? response.length : 0,
-          rawData: response,
-          sampleItem: Array.isArray(response) && response.length > 0 ? response[0] : null
-        })
-        
         if (Array.isArray(response) && response.length > 0) {
           setAnomalies(response)
-          console.log('✅ [이상 탐지] API 데이터 사용:', {
-            count: response.length,
-            anomalies: response
-          })
         } else {
           // API 응답이 비어있거나 0인 경우 더미데이터 사용
-          console.warn('⚠️ [이상 탐지] API 응답이 비어있거나 0입니다. 더미데이터로 보완합니다.', {
-            responseCount: Array.isArray(response) ? response.length : 0,
-            response: response
-          })
           setAnomalies(mockAnomalies)
         }
       } catch (err) {
-        console.error('❌ 이상 탐지 데이터 로딩 실패:', err)
         setError(err instanceof Error ? err.message : '데이터를 불러오는 중 오류가 발생했습니다.')
         // 에러 발생 시 더미데이터로 fallback
-        console.warn('⚠️ [이상 탐지] 에러 발생으로 인해 더미데이터로 보완합니다.')
         setAnomalies(mockAnomalies)
       } finally {
         setLoading(false)

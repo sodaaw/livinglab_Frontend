@@ -375,22 +375,13 @@ const DetectionSection = ({ initialTab }: DetectionSectionProps) => {
         const date = getTodayDateString()
         const response = await apiClient.getBlindSpots({ date }) as BlindSpotApiResponse[]
         
-        console.log('🔍 [사각지대 탐지] 백엔드 API 응답:', {
-          endpoint: '/api/v1/dashboard/blind-spots',
-          date,
-          responseCount: Array.isArray(response) ? response.length : 0,
-          rawData: response,
-        })
-        
         if (Array.isArray(response) && response.length > 0) {
           const mappedBlindSpots = response.map((item, index) => mapApiResponseToBlindSpot(item, index))
           setBlindSpots(mappedBlindSpots)
         } else {
-          console.warn('⚠️ [사각지대 탐지] API 응답이 비어있습니다. 더미데이터를 사용합니다.')
           setBlindSpots(mockBlindSpots)
         }
       } catch (err) {
-        console.error('❌ 사각지대 탐지 데이터 로딩 실패:', err)
         setBlindSpotError(err instanceof Error ? err.message : '데이터를 불러오는 중 오류가 발생했습니다.')
         setBlindSpots(mockBlindSpots)
       } finally {
@@ -413,21 +404,12 @@ const DetectionSection = ({ initialTab }: DetectionSectionProps) => {
         const date = getTodayDateString()
         const response = await apiClient.getAnomalies({ date }) as Anomaly[]
         
-        console.log('🔍 [이상 탐지] 백엔드 API 응답:', {
-          endpoint: '/api/v1/anomaly',
-          date,
-          responseCount: Array.isArray(response) ? response.length : 0,
-          rawData: response,
-        })
-        
         if (Array.isArray(response) && response.length > 0) {
           setAnomalies(response)
         } else {
-          console.warn('⚠️ [이상 탐지] API 응답이 비어있거나 0입니다. 더미데이터로 보완합니다.')
           setAnomalies(mockAnomalies)
         }
       } catch (err) {
-        console.error('❌ 이상 탐지 데이터 로딩 실패:', err)
         setAnomalyError(err instanceof Error ? err.message : '데이터를 불러오는 중 오류가 발생했습니다.')
         setAnomalies(mockAnomalies)
       } finally {

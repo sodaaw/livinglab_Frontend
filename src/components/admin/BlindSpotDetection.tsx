@@ -117,33 +117,15 @@ const BlindSpotDetection = () => {
         const date = getTodayDateString()
         const response = await apiClient.getBlindSpots({ date }) as BlindSpotApiResponse[]
         
-        // 백엔드에서 받은 원본 데이터 로그 출력
-        console.log('🔍 [사각지대 탐지] 백엔드 API 응답:', {
-          endpoint: '/api/v1/dashboard/blind-spots',
-          date,
-          responseCount: Array.isArray(response) ? response.length : 0,
-          rawData: response,
-          sampleItem: Array.isArray(response) && response.length > 0 ? response[0] : null
-        })
-        
         if (Array.isArray(response) && response.length > 0) {
           const mappedBlindSpots = response.map((item, index) => mapApiResponseToBlindSpot(item, index))
-          
-          // 매핑된 데이터 로그 출력
-          console.log('✅ [사각지대 탐지] 매핑 완료:', {
-            mappedCount: mappedBlindSpots.length,
-            mappedBlindSpots: mappedBlindSpots,
-            sampleMappedItem: mappedBlindSpots[0] || null
-          })
           
           setBlindSpots(mappedBlindSpots)
         } else {
           // API 응답이 비어있거나 형식이 다를 경우 더미데이터 사용
-          console.warn('⚠️ API 응답이 비어있거나 형식이 다릅니다. 더미데이터를 사용합니다.')
           setBlindSpots(mockBlindSpots)
         }
       } catch (err) {
-        console.error('❌ 사각지대 탐지 데이터 로딩 실패:', err)
         setError(err instanceof Error ? err.message : '데이터를 불러오는 중 오류가 발생했습니다.')
         // 에러 발생 시 더미데이터로 fallback
         setBlindSpots(mockBlindSpots)

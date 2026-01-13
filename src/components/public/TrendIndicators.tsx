@@ -79,7 +79,6 @@ const TrendIndicators = ({ unitId = '11110' }: TrendIndicatorsProps) => {
         
         setTrendData(chartData)
       } catch (err) {
-        console.error('❌ UCI 트렌드 데이터 로딩 실패:', err)
         setError(err instanceof Error ? err.message : '데이터를 불러오는 중 오류가 발생했습니다.')
       } finally {
         setLoading(false)

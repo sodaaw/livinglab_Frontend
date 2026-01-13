@@ -106,10 +106,7 @@ class ApiClient {
     }
 
     try {
-      console.log(`📤 API 요청: ${url}`)
       const response = await fetch(url, config)
-      
-      console.log(`📥 API 응답: ${response.status} ${response.statusText} - ${endpoint}`)
       
       if (!response.ok) {
         // 에러 응답 파싱 시도
@@ -135,14 +132,11 @@ class ApiClient {
 
         // 400 에러인 경우 날짜 파라미터 문제일 가능성
         if (response.status === 400) {
-          console.error(`❌ 잘못된 요청 (400):`, errorMessage)
-          console.error(`   요청 URL: ${url}`)
           throw new Error(`잘못된 요청: ${errorMessage}`)
         }
 
         // 500 에러인 경우 더 자세한 정보 제공
         if (response.status === 500) {
-          console.error(`❌ 서버 에러 (500) 상세:`, errorMessage)
           throw new Error(
             `서버 내부 오류 (500): 백엔드 서버에서 오류가 발생했습니다. ` +
             `백엔드 서버 로그를 확인해주세요. ` +
@@ -164,12 +158,8 @@ class ApiClient {
         const connectionError = new Error(errorMessage)
         // 연결 실패를 구분하기 위한 플래그 추가
         ;(connectionError as any).isConnectionError = true
-        console.error(`❌ API 요청 실패 [${endpoint}]:`, errorMessage)
-        console.error(`   요청 URL: ${url}`)
         throw connectionError
       }
-      console.error(`❌ API 요청 실패 [${endpoint}]:`, error)
-      console.error(`   요청 URL: ${url}`)
       throw error
     }
   }
@@ -471,45 +461,14 @@ export const apiClient = new ApiClient(API_BASE_URL)
 // API 연결 테스트 함수
 export async function testApiConnection(): Promise<boolean> {
   try {
-    console.log('🔌 API 연결 테스트 시작...')
-    console.log('📍 API Base URL:', API_BASE_URL)
-
     const health = await apiClient.healthCheck()
     
-    console.log('✅ API 연결 성공!')
-    console.log('📊 Health Check 응답:', health)
-    
     if (health.status === 'healthy') {
-      console.log('✅ 서버 상태: 정상')
-      if (health.database) {
-        console.log(`✅ 데이터베이스 상태: ${health.database}`)
-      }
       return true
     } else {
-      console.warn('⚠️ 서버 상태: 비정상', health)
       return false
     }
   } catch (error) {
-    console.error('❌ API 연결 실패:', error)
-    if (error instanceof Error) {
-      console.error('에러 메시지:', error.message)
-      
-      if (error.message.includes('500')) {
-        console.error('💡 해결 방법:')
-        console.error('   1. 백엔드 서버가 실행 중인지 확인하세요')
-        console.error('   2. 백엔드 서버 로그를 확인하여 500 에러 원인을 파악하세요')
-        console.error('   3. 백엔드 서버의 /api/v1/health 엔드포인트가 정상 작동하는지 확인하세요')
-        console.error('   4. 개발 환경에서는 Vite 프록시가 자동으로 처리합니다 (vite.config.ts 확인)')
-      } else if (error.message.includes('CORS') || error.message.includes('연결 실패')) {
-        console.error('💡 해결 방법:')
-        console.error('   1. 개발 환경: Vite 프록시가 자동으로 처리합니다 (vite.config.ts 확인)')
-        console.error('   2. 백엔드 서버가 실행 중인지 확인하세요')
-        console.error('   3. 프로덕션: 백엔드 서버에서 CORS 설정이 필요합니다')
-        console.error('      - Access-Control-Allow-Origin 헤더 설정')
-        console.error('      - Access-Control-Allow-Methods: GET, POST, PUT, DELETE 등')
-        console.error('      - Access-Control-Allow-Headers: Content-Type 등')
-      }
-    }
     return false
   }
 }

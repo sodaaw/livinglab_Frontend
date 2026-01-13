@@ -57,28 +57,15 @@ const AnomalyDetailModal = ({ unitId, date, onClose }: AnomalyDetailModalProps) 
         const queryDate = date || getTodayDateString()
         const response = await apiClient.getAnomalyByUnit(unitId, { date: queryDate }) as AnomalyDetail
 
-        console.log('🔍 [이상 탐지 상세] 백엔드 API 응답:', {
-          endpoint: `/api/v1/anomaly/${unitId}`,
-          unitId,
-          date: queryDate,
-          rawData: response
-        })
-
         if (response && response.unit_id) {
           setAnomaly(response)
-          console.log('✅ [이상 탐지 상세] API 데이터 사용:', response)
         } else {
           // API 응답이 비어있거나 유효하지 않은 경우 더미데이터 사용
-          console.warn('⚠️ [이상 탐지 상세] API 응답이 비어있거나 유효하지 않습니다. 더미데이터로 보완합니다.', {
-            response: response
-          })
           setAnomaly(mockAnomalyDetail)
         }
       } catch (err) {
-        console.error('❌ 이상 탐지 상세 데이터 로딩 실패:', err)
         setError(err instanceof Error ? err.message : '데이터를 불러오는 중 오류가 발생했습니다.')
         // 에러 발생 시 더미데이터로 fallback
-        console.warn('⚠️ [이상 탐지 상세] 에러 발생으로 인해 더미데이터로 보완합니다.')
         setAnomaly(mockAnomalyDetail)
       } finally {
         setLoading(false)

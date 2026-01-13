@@ -18,13 +18,19 @@ const Layout = () => {
                 to="/admin"
                 className={`nav-link ${isAdmin ? 'active' : ''}`}
               >
-                관리자 대시보드
+                <span className="nav-link-text">
+                  <span>관리자</span>
+                  <span>대시보드</span>
+                </span>
               </Link>
               <Link
                 to="/public"
                 className={`nav-link ${!isAdmin ? 'active' : ''}`}
               >
-                시민용 대시보드
+                <span className="nav-link-text">
+                  <span>시민용</span>
+                  <span>대시보드</span>
+                </span>
               </Link>
             </nav>
           </div>
